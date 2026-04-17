@@ -21,6 +21,8 @@ experiments/    Python (uv) — simulators, numerical optimization, plots
 analysis/       Wolfram Language scripts for symbolic / analytical work
 figures/        generated plots (referenced by paper/main.tex)
 paper/          LaTeX write-up; build with paper/build.sh
+site/           static website (vanilla HTML/CSS/JS) deployed to Cloudflare
+                Workers; interactive A_3 visualiser + embedded report PDF
 ```
 
 ## Workflow (Claude reads this every session)
@@ -42,7 +44,24 @@ paper/          LaTeX write-up; build with paper/build.sh
      and note the substitution below under *Environment caveats*.
    - Write results up in `paper/main.tex`; compile with `paper/build.sh`
      and confirm the PDF builds cleanly before declaring progress.
-4. **Update this file before ending the session.** Move entries between
+4. **Keep the static site current.** If the session produced new
+   results, updated `paper/main.tex`, added a figure, or otherwise
+   changed user-visible state, also:
+   - Update `site/index.html` (problem description / interactive) if the
+     wording or the JS port in `site/main.js` is now stale relative to
+     the paper.
+   - Run `./site/build.sh` (rebuilds the paper, copies the PDF into
+     `site/report.pdf`, generates `site/build-info.js` with the commit
+     SHA + dates).
+   - Deploy: `npx wrangler deploy` — this publishes to
+     `https://evacuation-claude.jaredraycoleman.workers.dev`. Cloudflare
+     auth is already configured (API token in env, or `wrangler login`
+     credentials at `~/.config/.wrangler/`); if `whoami` fails, ask the
+     user for a new token rather than guessing.
+   - If the JS simulator in `site/main.js` now disagrees with the Python
+     simulator numerically, fix it before deploying — the site is
+     promoted as matching the paper.
+5. **Update this file before ending the session.** Move entries between
    sections (e.g., *Currently working on* → *Results* or *Dead ends*).
    Keep *Next steps* concrete and actionable — a single sentence each.
 
@@ -55,6 +74,11 @@ paper/          LaTeX write-up; build with paper/build.sh
 - **LaTeX**: `pdflatex` via `paper/build.sh` (two passes for refs).
 - **Figures**: save as vector PDF into `figures/` and include from
   `paper/main.tex` with `\includegraphics`.
+- **Site**: `./site/build.sh` rebuilds the paper, copies the PDF to
+  `site/report.pdf`, and generates `site/build-info.js`. `npx wrangler
+  deploy` ships `site/` as an assets-only Cloudflare Worker; config is
+  in `wrangler.toml` at the repo root. Live URL:
+  `https://evacuation-claude.jaredraycoleman.workers.dev`.
 
 ## Environment caveats
 
