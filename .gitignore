@@ -19,9 +19,9 @@ site/report.pdf
 site/build-info.js
 
 # Wrangler / node ephemera (created by `npx wrangler deploy`)
-site/.wrangler/
-site/node_modules/
-site/package-lock.json
+.wrangler/
+node_modules/
+package-lock.json
 
 # Data / results caches
 experiments/cache/
