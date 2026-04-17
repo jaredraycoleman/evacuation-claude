@@ -3,8 +3,9 @@
 Produces figures/problem_setup.pdf showing:
     - the unit disk with centre marked,
     - three robots stacked at the centre,
-    - an "unknown exit" marked with a question mark on the boundary,
-    - a generic robot trajectory (to boundary + scan + chord).
+    - an unknown exit on the boundary, labelled well outside the disk,
+    - a generic robot trajectory (radial approach + boundary scan + chord
+      to the exit), with each phase labelled in a clearly separated spot.
 """
 from __future__ import annotations
 
@@ -16,52 +17,85 @@ import numpy as np
 FIG_DIR = Path(__file__).resolve().parents[1] / "figures"
 FIG_DIR.mkdir(exist_ok=True)
 
+BLUE = "#3a7ab0"
+RED  = "#c0392b"
+
 
 def main() -> None:
-    fig, ax = plt.subplots(figsize=(4.2, 4.2))
-    circle_t = np.linspace(0, 2 * np.pi, 400)
-    ax.plot(np.cos(circle_t), np.sin(circle_t), color="black", lw=1.3)
+    fig, ax = plt.subplots(figsize=(6.0, 5.2))
 
-    # Centre + robots as a stack of tiny markers.
-    ax.scatter([0], [0], s=16, color="black", zorder=5)
-    for i, dx in enumerate([-0.06, 0.0, 0.06]):
-        ax.annotate(f"$r_{i+1}$", (dx, -0.13), ha="center", fontsize=9)
+    # -- Disk outline --
+    tc = np.linspace(0, 2 * np.pi, 400)
+    ax.plot(np.cos(tc), np.sin(tc), color="black", lw=1.3)
 
-    # Unknown exit at some theta (example angle).
-    theta_ex = 1.1
-    ex_xy = np.array([np.cos(theta_ex), np.sin(theta_ex)])
-    ax.scatter(*ex_xy, s=60, marker="*", color="crimson", zorder=6)
+    # -- Centre dot + robot labels stacked above it --
+    ax.scatter([0], [0], s=22, color="black", zorder=5)
+    ax.annotate("origin\n(all three robots start here)",
+                xy=(0, 0), xytext=(-0.04, -0.35), ha="center",
+                fontsize=9,
+                arrowprops=dict(arrowstyle="-", color="black", lw=0.6))
+
+    # -- Trajectory geometry --
+    # Approach angle (where the robot hits the boundary).
+    alpha = 0.30
+    # Scan goes CCW from alpha for length L_scan; keep scan strictly before exit
+    # so the "chord" segment is geometrically visible.
+    L_scan = 0.55
+    scan_end_angle = alpha + L_scan
+    # Exit well past scan end.
+    theta_ex = 1.55
+
+    approach_end = np.array([np.cos(alpha), np.sin(alpha)])
+    scan_end     = np.array([np.cos(scan_end_angle), np.sin(scan_end_angle)])
+    exit_xy      = np.array([np.cos(theta_ex), np.sin(theta_ex)])
+
+    # -- Radial approach (blue line) --
+    ax.plot([0, approach_end[0]], [0, approach_end[1]],
+            color=BLUE, lw=1.6)
+    # label along the midpoint, offset outward (perpendicular to the segment)
+    mid_app = 0.5 * approach_end
+    perp_app = np.array([-np.sin(alpha), np.cos(alpha)])
+    lbl_app = mid_app + 0.16 * perp_app
+    ax.annotate("radial approach",
+                xy=mid_app, xytext=lbl_app,
+                fontsize=9, color=BLUE, ha="center",
+                arrowprops=dict(arrowstyle="-", color=BLUE, lw=0.5))
+
+    # -- Boundary scan (thicker blue arc) --
+    scan_t = np.linspace(alpha, scan_end_angle, 120)
+    ax.plot(np.cos(scan_t), np.sin(scan_t), color=BLUE, lw=2.4)
+    # Label the lower part of the arc, well outside the disk to the right.
+    scan_label_angle = alpha + 0.15       # near the lower end of the arc
+    tip_scan = 1.01 * np.array([np.cos(scan_label_angle),
+                                np.sin(scan_label_angle)])
+    lbl_scan = np.array([1.35, 0.35])
+    ax.annotate("boundary scan",
+                xy=tip_scan, xytext=lbl_scan,
+                fontsize=9, color=BLUE, ha="left",
+                arrowprops=dict(arrowstyle="-", color=BLUE, lw=0.5))
+
+    # -- Chord from scan-end to exit (dashed blue) --
+    ax.plot([scan_end[0], exit_xy[0]], [scan_end[1], exit_xy[1]],
+            color=BLUE, lw=1.2, linestyle="--")
+    mid_chord = 0.5 * (scan_end + exit_xy)
+    # Place label inside the disk, to the upper-left of the chord.
+    lbl_chord = np.array([-0.65, 1.05])
+    ax.annotate("chord to exit\n(after broadcast)",
+                xy=mid_chord, xytext=lbl_chord,
+                fontsize=9, color=BLUE, ha="center",
+                arrowprops=dict(arrowstyle="-", color=BLUE, lw=0.5))
+
+    # -- Exit star + label pushed outside the disk to the upper-right --
+    ax.scatter(*exit_xy, s=120, marker="*", color=RED, zorder=7)
+    lbl_exit = np.array([exit_xy[0] - 0.10, exit_xy[1] + 0.35])
     ax.annotate(r"exit at unknown $\theta$",
-                xy=ex_xy, xytext=(ex_xy[0] + 0.08, ex_xy[1] + 0.14),
-                fontsize=9, color="crimson",
-                arrowprops=dict(arrowstyle="-", color="crimson", lw=0.7))
+                xy=exit_xy, xytext=lbl_exit,
+                fontsize=10, color=RED, ha="center",
+                arrowprops=dict(arrowstyle="-", color=RED, lw=0.7))
 
-    # Sample trajectory for one robot (deep grey):
-    # radial approach to angle alpha, then short scan CCW, then chord to exit.
-    alpha = 0.55
-    ax.plot([0, np.cos(alpha)], [0, np.sin(alpha)],
-            color="#3a7ab0", lw=1.4)
-    ax.annotate("radial\napproach",
-                (0.5 * np.cos(alpha) - 0.2, 0.5 * np.sin(alpha) + 0.05),
-                fontsize=8, color="#3a7ab0")
-
-    scan_t = np.linspace(alpha, alpha + 0.55, 80)
-    ax.plot(np.cos(scan_t), np.sin(scan_t), color="#3a7ab0", lw=1.8)
-    ax.annotate("boundary\nscan", (np.cos(alpha + 0.55) + 0.05,
-                                   np.sin(alpha + 0.55) + 0.08),
-                fontsize=8, color="#3a7ab0")
-
-    # Chord from scan endpoint to exit (dashed):
-    end_xy = np.array([np.cos(alpha + 0.55), np.sin(alpha + 0.55)])
-    ax.plot([end_xy[0], ex_xy[0]], [end_xy[1], ex_xy[1]],
-            color="#3a7ab0", lw=1.0, linestyle="--")
-    ax.annotate("straight chord\nafter broadcast",
-                ((end_xy[0] + ex_xy[0]) / 2 + 0.03,
-                 (end_xy[1] + ex_xy[1]) / 2 + 0.05),
-                fontsize=8, color="#3a7ab0")
-
-    ax.set_xlim(-1.25, 1.35)
-    ax.set_ylim(-1.25, 1.25)
+    # -- Axes / cleanup --
+    ax.set_xlim(-1.45, 1.90)
+    ax.set_ylim(-1.45, 1.70)
     ax.set_aspect("equal")
     ax.axis("off")
 
