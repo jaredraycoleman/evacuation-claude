@@ -112,11 +112,24 @@ the Czyzowicz et al. bound with a cleanly-parametrized trajectory.
 term in their UB is a hand-tuned slop, strongly suggesting it can be
 tightened with careful parameter optimization.
 
-**Next action:** Enrich the family to include "return-to-center + redeploy"
-moves, then re-optimize. A robot's trajectory becomes a sequence of line
-segments between the boundary and the interior, with scan phases only when
-on the boundary. Reimplement the worst-case evaluator to handle this and
-run a fresh DE search against the 4.2193 target.
+**Family B attempted (`experiments/wireless_k3_opt2.py`):** Robot 2 gets a
+two-phase trajectory (approach + scan + return-to-origin + approach +
+scan). Result: blind DE search still converges to $\approx 4.826$ across
+all 8 discrete sign combos. Diagnosis: when robot 2's first scan
+$L_{2a}$ is large, its second phase doesn't start until after $t_{\text{found}}$,
+so the new move is effectively inactive; the optimizer finds a Family-A
+local minimum and stays there. Blind global search in this space is
+wasteful — the good region is a narrow manifold (small $L_{2a}$, robot 2
+acts as a "positioner" not a scanner) that DE with Sobol init misses.
+
+**Next action:** Implement A3 **literally** from the paper (exact parameters
+of Czyzowicz et al. Theorem 6): $r_1$ to $A$; $r_2, r_3$ together to $B$
+with angular offset $y = 4\pi/9 + 2\sqrt{3}/3 - 401/300$; scan directions
+as specified; $r_3$ returns to origin and redeploys at angle $\pi - y/2$
+CW of $RB$. Verify the simulator reproduces $\approx 4.2193$. Then: local
+search (e.g., Nelder-Mead seeded at A3's $(y, \text{offsets})$) to see if
+the `1/300`-scale hand-tuning can be tightened, and extract the balancing
+conditions for a Wolfram-symbolic proof of whatever optimum we land at.
 
 ## Open problem candidates
 
