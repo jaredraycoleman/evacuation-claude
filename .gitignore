@@ -16,6 +16,7 @@ paper/*.fls
 
 # Static site build artifacts
 site/report.pdf
+site/build-info.js
 
 # Data / results caches
 experiments/cache/

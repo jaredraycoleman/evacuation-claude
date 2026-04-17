@@ -1,6 +1,8 @@
 // Port of experiments/wireless_k3_opt2.py simulator for the A_3 algorithm,
 // plus a canvas renderer.
 
+import { BUILD_INFO } from "./build-info.js";
+
 const TWO_PI = 2 * Math.PI;
 const Y_OPT = 1.2158578321292429;
 const ROBOT_COLORS = ["#2a9d8f", "#e76f51", "#264653"];
@@ -217,6 +219,27 @@ const evacNowEl = document.getElementById("evac-now");
 const evacWorstEl = document.getElementById("evac-worst");
 const tFoundEl = document.getElementById("t-found");
 const bottleneckEl = document.getElementById("bottleneck");
+
+// --- Navbar: build info -------------------------------------------------
+
+const navCommitEl = document.getElementById("nav-commit");
+if (navCommitEl && BUILD_INFO) {
+  const iso = BUILD_INFO.commitISO;
+  let label = BUILD_INFO.commit;
+  if (iso && iso !== "unknown") {
+    const d = new Date(iso);
+    if (!isNaN(d)) {
+      const date = d.toISOString().slice(0, 10);
+      label = `${date} (${BUILD_INFO.commit})`;
+    }
+  }
+  navCommitEl.textContent = label;
+  if (BUILD_INFO.commitUrl && BUILD_INFO.commit !== "unknown") {
+    navCommitEl.href = BUILD_INFO.commitUrl;
+  }
+}
+
+// --- Simulation state ---------------------------------------------------
 
 let y = Y_OPT;
 let theta = 1.486472;
