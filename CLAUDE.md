@@ -149,18 +149,24 @@ $\{1, \pi, \sqrt{3}, \sqrt{2}, \log 2, \log 3, \gamma\}$ proves no integer
 relation of norm $\le 15.2$ exists for $v_{\mathrm{opt}}$ or $UB$. The
 transcendental equation *is* the closed form.
 
-**Open:**
-- Rigorous proof that the 4 simultaneous worst-case angles found
-  numerically exhaust all worst cases (currently backed by fine-grid
-  simulator; need analytic verification on the remaining arcs).
-- Genuinely richer trajectory family (curved approach, multi-segment $r_3$
-  after redeploy, asymmetric role assignment) to push below 4.218.
+**Theorem 1 is now rigorous (`paper/main.tex`, proved via Lemma 2).**
+Zone-by-zone analysis in `analysis/a3_zone_proof.wls` verifies:
+- Zone 1a ($\theta \in [0, y]$): max $\approx 4.152 < T_1$. Proved via
+  monotonicity of $1 + \theta + 2\sin(\pi - y/2 - \theta)$.
+- Zone 1b ($\theta \in [y, 1+y]$): interior critical of $c_2$ branch at
+  $\theta = 2\pi/3 - y/2$ gives $T_1$; $c_3$ branch has no interior
+  critical, boundary value $3 + y < T_1$.
+- Zone 1c ($\theta \in [1+y, \pi-y/2]$): interior critical gives $T_1$
+  exactly ($T_1 = T_3$ balance); boundaries give $3 + y$.
+- Zone 3 ($\theta \in [2\pi-y, 2\pi]$): max $= 1 + y + 2\sin y \approx
+  4.091 < T_1$.
+- Zone 2: reflection of Zone 1.
 
-**Next action:** Rigorize Theorem 1 by proving analytically that for any
-$y$ in a neighborhood of $y_{\mathrm{opt}}$, the worst-case evac is
-attained at the 4 identified angles (plus reflections) and at no other
-angle. This upgrades the result from "numerical UB within the $A_3$
-family" to "proved UB within the $A_3$ family".
+**Open:**
+- Genuinely richer trajectory family (curved approach, multi-segment $r_3$
+  after redeploy, asymmetric role assignment) to push the UB below 4.218.
+- Matching lower bound for $k=3$ wireless: known LB $\approx 4.159$
+  (Czyzowicz et al. Thm 7). Gap $\approx 0.06$.
 
 ## Open problem candidates
 

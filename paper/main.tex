@@ -102,25 +102,70 @@ interior. The corresponding worst-case time $T_3(y) = 1 + \theta_3(y) +
 for~$y$ sufficiently close to~$y_\star$.
 \end{proposition}
 
-\begin{theorem}[Numerical improvement within the $A_3$ family]
-\label{thm:main-num}
-Let $y_{\mathrm{opt}} \approx 1.215858$ be the unique value in $(0,
-2\pi/3)$ at which $T_1(y) = \max_\theta T_3(y, \theta)$. Then
+\begin{lemma}[Zone decomposition]
+\label{lem:zones}
+Partition $[0, 2\pi)$ by which robot is the finder:
+Zone~1 $= [0, \pi-y/2]$ ($r_1$ finds, time $1 + \theta$); Zone~2 $= [\pi
+-y/2,\, 2\pi-y]$ ($r_2$ finds, reflected); Zone~3 $= [2\pi - y,\, 2\pi)$
+($r_3$ finds). Zone~1 further splits by the phase $r_3$ is in at the
+discovery time $t = 1 + \theta$:
+\begin{itemize}
+\item \textbf{1a} ($\theta \in [0, y]$): $r_3$ on boundary scan at angle
+$2\pi - y + \theta$.
+\item \textbf{1b} ($\theta \in [y, 1+y]$): $r_3$ transiting scan-end
+$(1,0) \to$ origin along the $+x$ axis.
+\item \textbf{1c} ($\theta \in [1+y,\, \pi-y/2]$): $r_3$ transiting origin
+$\to$ redeploy target at angle $\pi - y/2$.
+\end{itemize}
+\end{lemma}
+
+\begin{lemma}[Zone maxima at $y = y_{\mathrm{opt}}$]
+\label{lem:zone-max}
+With $T_1 := 1 + \tfrac{2\pi}{3} - \tfrac{y_{\mathrm{opt}}}{2} + \sqrt3$:
+\begin{enumerate}
+\item Zone~1a: $\mathrm{evac}(\theta) = 1 + \theta + 2\sin(\pi - y/2 -
+\theta)$ is strictly increasing on $[0, y]$, hence bounded above by
+$\mathrm{evac}(y) = 1 + y + 2\sin(\pi - 3y/2) \approx 4.1522$.
+\item Zone~1b: the interior critical point of $1 + \theta + c_2$ lies at
+$\theta = 2\pi/3 - y_{\mathrm{opt}}/2 \in [y, 1+y]$ and yields
+$\mathrm{evac}= T_1$; on the $c_3$-dominant sub-interval the function has
+no interior critical point, so its max is at the boundary $\theta = 1 +
+y$ with value $3 + y_{\mathrm{opt}} \approx 4.2159 < T_1$.
+\item Zone~1c: $c_3 > c_2$ throughout; the interior critical point at
+$\theta \approx 2.3308$ yields $\mathrm{evac} = T_1$; both endpoints give
+$3 + y_{\mathrm{opt}}$.
+\item Zone~3: the max is $1 + y_{\mathrm{opt}} + 2\sin y_{\mathrm{opt}}
+\approx 4.0912$.
+\end{enumerate}
+\end{lemma}
+
+\begin{theorem}[Improved upper bound, proved]
+\label{thm:main}
+Let $y_{\mathrm{opt}}$ be as in \Cref{thm:transcendental}. The algorithm
+$A_3(y_{\mathrm{opt}})$ evacuates three wireless robots from the unit
+disk with worst-case time
 \[
 T(y_{\mathrm{opt}}) \;=\; 1 + \tfrac{2\pi}{3} - \tfrac{y_{\mathrm{opt}}}{2}
-+ \sqrt{3} \;\approx\; 4.218517,
++ \sqrt3 \;\approx\; 4.21851699389745\ldots,
 \]
-improving the Czyzowicz et al.~upper bound by $4.21930 - 4.21852
-\approx 0.00078 \approx 1/1280$.
+which is attained at exactly four exit angles $\theta \in \{2\pi/3 -
+y_{\mathrm{opt}}/2,\, \pi - y_{\mathrm{opt}}/2 - v_{\mathrm{opt}},$
+and their reflections across $\pi\}$, improving the Czyzowicz et
+al.~\cite{czyzowicz2014} upper bound~4.21930 by $\approx 0.00078 \approx
+1/1280$.
 \end{theorem}
 
-At $y_{\mathrm{opt}}$ the simulator reveals four equally-binding worst-case
-angles (two pairs related by the $A_3$ reflection symmetry): a
-case-1 pair at $\theta \in \{1.486,\, 3.581\}$ with~$r_1$ or~$r_2$
-bottleneck at chord~$\sqrt3$, and a case-3 pair at $\theta \in \{2.331,\,
-2.737\}$ with~$r_3$ bottleneck at chord~$\approx 0.888$. Case~2 falls
-strictly below: $T_2(y_{\mathrm{opt}}) \approx 4.2159$, slack by
-$\approx 0.0026$.
+\begin{proof}
+$\mathrm{evac}(\theta)$ is piecewise-smooth on $[0, 2\pi)$ with
+breakpoints at the zone boundaries. By \Cref{lem:zone-max}, the maximum
+on each zone of Zone~1 is either $T_1$ (attained at an interior critical
+point) or strictly smaller; Zone~2 mirrors Zone~1 by the symmetry
+$\theta \mapsto (2\pi - y_{\mathrm{opt}}) - \theta$; Zone~3 is bounded by
+$4.0912 < T_1$. Hence
+$T(y_{\mathrm{opt}}) = \max_\theta \mathrm{evac}(\theta) = T_1$. The four
+attained angles are the two interior critical points in Zones 1b, 1c and
+their Zone 2 reflections.
+\end{proof}
 
 \begin{theorem}[Transcendental characterization]
 \label{thm:transcendental}
