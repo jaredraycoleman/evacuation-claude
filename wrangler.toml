@@ -1,0 +1,15 @@
+# Cloudflare Workers static-assets deployment for the evacuation-claude site.
+# See https://developers.cloudflare.com/workers/static-assets/
+#
+# This config tells wrangler to deploy the contents of ./site/ as static
+# assets. No Worker script is needed: wrangler serves the files directly.
+# Make sure ./site/build.sh has been run first (it copies paper/main.pdf
+# into site/report.pdf). Configure that as the Build Command in the
+# Cloudflare dashboard; Deploy Command stays as `npx wrangler deploy`.
+
+name = "evacuation-claude"
+compatibility_date = "2026-04-01"
+
+[assets]
+directory = "./site"
+not_found_handling = "404-page"
