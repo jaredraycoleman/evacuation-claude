@@ -13,7 +13,6 @@ paper/*.blg
 paper/*.synctex.gz
 paper/*.fdb_latexmk
 paper/*.fls
-paper/*.pdf
 
 # Data / results caches
 experiments/cache/

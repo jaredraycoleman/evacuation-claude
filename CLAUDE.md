@@ -92,28 +92,31 @@ the Czyzowicz et al. bound with a cleanly-parametrized trajectory.
 
 **Progress so far:**
 - Env green: `wolframscript`, `pdflatex`, `uv sync`, `paper/build.sh` all work.
-- `experiments/wireless_k3.py` is a generic wireless-$k$ simulator: pass $k$
-  trajectories $r_i: [0,T] \to \mathbb{R}^2$ (unit-speed, start at origin), get
-  worst-case evac time over exit angle $\theta$.
-- Baseline verified: naive arc-partition at $k=3$ gives worst-case $\approx 4.8231$
-  (analytical $1 + 2\pi/3 + \sqrt{3} \approx 4.8264$; diff is grid tolerance).
-  Worst exit at $\theta \approx 2\pi/3$ (end of robot 0's arc); bottleneck is
-  the robot diametrically opposite at chord distance $\sqrt{3}$.
+- `experiments/wireless_k3.py`: generic wireless-$k$ simulator (unit-speed
+  trajectories in, worst-case evac time out).
+- Baseline: naive arc-partition at $k=3$ gives $1 + 2\pi/3 + \sqrt{3} \approx 4.826$.
+- `experiments/wireless_k3_opt.py`: differential-evolution search over
+  Family A = {radial approach + single CCW/CW scan + wait at origin}.
+  Converges to 4.826 — no improvement. Family A is not rich enough.
 
-**Next action:** Parametrize a richer trajectory family and numerically
-optimize. Candidate ideas (in order of complexity):
-  1. **Staggered arc-partition** — robots scan overlapping arcs, so at any
-     moment of discovery the non-discovering robots are already partway
-     through their own approach.
-  2. **Chord-shortcut on discovery** — the generic algorithm assumes robots
-     are still scanning when any broadcast arrives; tune arc lengths so the
-     bottleneck chord is balanced against scan time.
-  3. **Non-radial deployment** — approach boundary along a curve that keeps
-     robots closer to the likely exit region, trading deployment time for
-     smaller worst-case chord.
-First concrete task: build a parametrized family (arc midpoint angles +
-arc lengths) and run a Nelder-Mead / differential-evolution search against
-the worst-case evaluator.
+**Key correction from reading `papers/ev-disc-k-robots.pdf` (Czyzowicz et al.):**
+- Asymptotic UB $3 + \pi/k + O(k^{-4/3})$ (Theorem 10) only applies for $k \ge 100$.
+- For $k=3$ they have a *separate* algorithm A3 (Theorem 6) with
+  UB $= \frac{4\pi}{9} + \frac{2\sqrt{3}+5}{3} + \frac{1}{600} \approx 4.2193$
+  and matching LB $\approx 4.159$ (Theorem 7). **Gap $\approx 0.06$.**
+- A3 uses a "return-to-center + redeploy" move ($r_3$ scans for time $y$,
+  walks back to origin, walks out again at angle $\pi - y/2$). This move is
+  not in Family A — explains why numerical search stalled at 4.826.
+
+**Revised target:** beat 4.2193 at $k=3$ with a proved bound. The `1/600`
+term in their UB is a hand-tuned slop, strongly suggesting it can be
+tightened with careful parameter optimization.
+
+**Next action:** Enrich the family to include "return-to-center + redeploy"
+moves, then re-optimize. A robot's trajectory becomes a sequence of line
+segments between the boundary and the interior, with scan phases only when
+on the boundary. Reimplement the worst-case evaluator to handle this and
+run a fresh DE search against the 4.2193 target.
 
 ## Open problem candidates
 
