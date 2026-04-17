@@ -186,11 +186,24 @@ Zone-by-zone analysis in `analysis/a3_zone_proof.wls` verifies:
   4.091 < T_1$.
 - Zone 2: reflection of Zone 1.
 
+**LB work this session (partial):**
+- Verified Czyzowicz et al.'s LB value symbolically: $1 + \tfrac{2}{3}\arccos(-\tfrac{1}{3}) + \tfrac{4\sqrt 2}{3} \approx 4.15937$ via `analysis/czyzowicz_lb.wls`.
+- Identified the slack: their argument lower-bounds the **finder's**
+  chord at $2\sin(xk/2)$, but in $A_3$ the finder has chord 0 and the
+  bottleneck is a different robot with chord $\sqrt{3} > 2\sin(xk/2)$
+  at our worst-case $x$. Tightening the LB requires an argument on the
+  **bottleneck** chord, which doesn't follow from Lemma 5 alone.
+- Drafted this as a Remark in `paper/main.tex`; a rigorous refinement
+  (e.g., a multi-exit adversary) is genuine research and was not
+  attempted this session.
+
 **Open:**
-- Genuinely richer trajectory family (curved approach, multi-segment $r_3$
-  after redeploy, asymmetric role assignment) to push the UB below 4.218.
-- Matching lower bound for $k=3$ wireless: known LB $\approx 4.159$
-  (Czyzowicz et al. Thm 7). Gap $\approx 0.06$.
+- Genuinely richer UB family (all three robots return-to-origin; $r_3$
+  scans after redeploy; curved approaches; asymmetric roles) to push UB
+  below 4.218.
+- Multi-exit adversary LB: three candidate exits mutually far apart
+  should force at least one robot far from the eventual exit, giving a
+  bottleneck-chord bound stronger than the finder-chord of Lemma 6.
 
 ## Open problem candidates
 

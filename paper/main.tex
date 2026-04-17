@@ -334,6 +334,37 @@ breaking the $L_1 = L_2$ or redeploy-angle symmetries), and
 \texttt{experiments/a3\_diagnose.py} (identifies the four binding
 worst-case angles at $y_{\mathrm{opt}}$).
 
+\section{The Lower-Bound Side}
+\label{sec:lb}
+
+Czyzowicz et al.'s \Cref{czyzowicz2014} Theorem~7 states the lower bound
+\[
+T^*_{3,\mathrm{wireless}} \;\ge\; 1 + \tfrac{2}{3}\arccos\!\left(-\tfrac{1}{3}\right)
++ \tfrac{4\sqrt 2}{3} \;\approx\; 4.15937,
+\]
+leaving a gap of $\approx 0.06$ against our \Cref{thm:main}. Their
+argument (their Lemma~5 and~6) has the form: at time $1+x$, the total
+scanned perimeter is $\le kx$, so the unexplored set has length
+$\ge 2\pi - kx$; Lemma~5 then exhibits two unexplored points at
+shorter-arc distance $\ge u := 2\pi - kx$; the adversary commits the exit
+to whichever is reached second, forcing the \emph{finder}'s chord to be
+$\ge 2\sin(u/2)$. Optimising over $x$ (with $k=3$) yields the closed
+form above at $x_{\mathrm{opt,LB}} = \tfrac23 \arccos(-\tfrac13)$.
+
+\begin{remark}[Where the LB argument has slack]
+\label{rem:lb-slack}
+The argument bounds the \emph{finder}'s chord to the exit, not the
+bottleneck's. In $A_3(y_{\mathrm{opt}})$ at its worst exit
+$\theta \approx 1.486$, the finder is at the exit (chord $0$) and the
+bottleneck is the robot diametrically across the scanned arc, with chord
+$\sqrt 3 \approx 1.732$ — strictly larger than the Czyzowicz et al.\
+chord lower bound $2\sin(xk/2) \approx 1.586$ evaluated at the same $x$.
+Tightening the LB thus requires arguing that the \emph{bottleneck} chord
+exceeds $2\sin(xk/2)$ for every three-robot wireless algorithm, not only
+the finder's. Verified via the Wolfram script
+\texttt{analysis/czyzowicz\_lb.wls}.
+\end{remark}
+
 \section{Next Steps}
 \label{sec:next}
 
@@ -341,16 +372,20 @@ worst-case angles at $y_{\mathrm{opt}}$).
 \item \textbf{Richer algorithm class.} Retaining the $A_3$ skeleton
 caps improvements at the $\approx 1/1280$ reported here. Natural
 generalisations include: allowing $r_3$ to continue scanning after
-redeployment (a fourth phase, not used by $A_3$); curved (non-radial)
-approaches; and asymmetric role assignments that break the $L_1 = L_2$
-reflection symmetry. Preliminary numerical experiments
-(\texttt{experiments/a3\_local\_search.py}) show no gain from breaking
-the structural symmetries at fixed skeleton, so the next productive step
-is a genuinely larger family.
-\item \textbf{Lower bound.} The gap against Czyzowicz et al.'s LB of
-$\approx 4.1594$ is still $\approx 0.06$. Their LB uses an adversarial
-exit argument that does not obviously tighten; whether the four-way
-balance we observe here transfers to a matching LB construction is open.
+redeployment (a fourth phase, not used by $A_3$); letting all three
+robots perform a return-to-origin + redeploy (symmetric analogue);
+curved (non-radial) approaches; and asymmetric role assignments that
+break the $L_1 = L_2$ reflection symmetry. Preliminary numerical
+experiments (\texttt{experiments/a3\_local\_search.py}) show no gain
+from breaking the structural symmetries at fixed skeleton, so the next
+productive step is a genuinely larger family.
+\item \textbf{Lower bound.} As noted in \Cref{rem:lb-slack}, tightening
+Czyzowicz et al.'s LB reduces to arguing that the bottleneck chord (not
+the finder's) is bounded below. A promising route is a multi-exit
+adversary that keeps three candidate exits alive simultaneously; if the
+three candidates are forced to be mutually far, then by pigeonhole some
+robot is far from the actual exit regardless of how the algorithm has
+positioned its robots. Formalising this for $k=3$ is open.
 \end{itemize}
 
 \bibliographystyle{plain}
