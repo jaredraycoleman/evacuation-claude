@@ -1,0 +1,27 @@
+[project]
+name = "evacuation-claude"
+version = "0.1.0"
+description = "Exploring open problems in the robot evacuation literature"
+requires-python = ">=3.11"
+dependencies = [
+    "numpy>=2.0",
+    "scipy>=1.13",
+    "matplotlib>=3.9",
+    "sympy>=1.13",
+    "shapely>=2.0",
+    "tqdm>=4.66",
+]
+
+[tool.uv]
+dev-dependencies = [
+    "ipykernel>=6.29",
+    "jupyterlab>=4.2",
+    "ruff>=0.6",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["experiments"]
