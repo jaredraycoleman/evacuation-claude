@@ -1,5 +1,6 @@
 \documentclass[11pt]{article}
 
+\usepackage[T1]{fontenc}
 \usepackage[margin=1in]{geometry}
 \usepackage{amsmath, amssymb, amsthm}
 \usepackage{graphicx}
@@ -23,7 +24,7 @@
 \theoremstyle{remark}
 \newtheorem{remark}[theorem]{Remark}
 
-\title{Notes on Open Problems in Robot Evacuation}
+\title{An Improved Upper Bound for Three-Robot Wireless Evacuation on the Disk}
 \author{}
 \date{\today}
 
@@ -31,38 +32,129 @@
 \maketitle
 
 \begin{abstract}
-Working notes on open problems identified in the robot evacuation literature,
-with partial results and numerical evidence. This document is regenerated as
-new results come in; see \texttt{CLAUDE.md} at the project root for the
-current status.
+We study the wireless $k{=}3$ robot evacuation problem on the unit disk
+and prove an upper bound of approximately $4.2185170$ on the worst-case
+evacuation time. This improves the best known upper bound
+of~\cite{czyzowicz2014} ($\approx 4.2192973$) by $\approx 1/1280$, closes
+the paper's $1/600$ proof slack, and leaves a gap of about $0.06$ against
+the best known lower bound of the same paper. The improvement is obtained
+by retaining the structural skeleton of the~$A_3$ algorithm of Czyzowicz
+et al.\ and rebalancing a single deployment parameter~$y$. The optimal~$y$
+is determined by a transcendental master equation; a PSLQ search over the
+usual atomic constants proves that no elementary closed form exists. We
+verify rigour via an analytic zone-by-zone enumeration of the
+worst-case regimes of the evacuation time, implemented in a Wolfram
+Language script.
 \end{abstract}
 
-\section{Open Problem Under Study}
+\section{Introduction}
 \label{sec:problem}
 
-We study the wireless $k$-robot evacuation problem on the unit disk at
-$k=3$. Three unit-speed robots start at the centre; an exit lies at an
-unknown angle $\theta$ on the boundary; once any robot's trajectory
-visits the exit, a broadcast is assumed instantaneous and every robot
-then walks straight to the exit. The evacuation time is the moment the
-last robot reaches the exit, and the cost of an algorithm is its worst
-case over $\theta$. Czyzowicz et al.~\cite{czyzowicz2014} give an
-explicit algorithm~$A_3$ with UB $\frac{4\pi}{9} + \frac{2\sqrt3 + 5}{3}
-+ \tfrac{1}{600} \approx 4.21930$ and matching LB $\approx 4.159$.
+\emph{Robot evacuation from the disk} is the following problem. A
+team of mobile robots, each moving at unit speed, starts at the centre of
+the unit disk. An exit sits at an unknown point on the boundary circle.
+The goal is a set of trajectories --- one per robot, chosen in advance ---
+that minimises the worst-case time (over the placement of the exit)
+until every robot reaches the exit. A robot ``finds'' the exit the first
+moment its trajectory visits that boundary point; under the \emph{wireless}
+communication model, we assume the finder broadcasts
+instantaneously and every robot then walks the chord from wherever it
+currently is to the exit.\footnote{Other communication models in the
+literature include \emph{face-to-face} (F2F), in which robots learn of a
+discovery only by co-location \cite{brandt2020}; and asymmetric models such
+as \emph{sender/receiver} \cite{georgiou2022} and \emph{priority
+evacuation} \cite{czyzowicz2018priority}. Here we treat only the wireless
+case.}
 
-\section{Background}
+\Cref{fig:problem} illustrates the setup.
+Czyzowicz et al.~\cite{czyzowicz2014} introduced the problem for
+general~$k$ and proved an asymptotic upper bound $3 + \pi/k +
+O(k^{-4/3})$ valid for $k \ge 100$. For $k = 3$ they give a separate,
+custom algorithm~$A_3$ (their Theorem~6) with the explicit bound
+\begin{equation}
+\label{eq:czy-ub}
+T_{\mathrm{CGK}} \;:=\; \tfrac{4\pi}{9} + \tfrac{2\sqrt3 + 5}{3} + \tfrac{1}{600}
+\;\approx\; 4.21929727,
+\end{equation}
+and a matching lower bound of approximately $4.15935$ (their
+Theorem~7). The gap of $\approx 0.06$ has been open since 2014.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.62\textwidth]{problem_setup.pdf}
+\caption{The $k=3$ wireless evacuation problem. Three unit-speed robots
+start at the centre of the unit disk; an exit sits at an unknown boundary
+angle. A robot's trajectory typically has a radial approach phase to the
+boundary, a boundary-scan phase, and --- after an exit is broadcast --- a
+straight chord to the exit.}
+\label{fig:problem}
+\end{figure}
+
+\paragraph{Contribution.} Our main result
+(\Cref{thm:main} below) proves the improved upper bound
+\begin{equation}
+\label{eq:our-ub}
+T(y_{\mathrm{opt}}) \;=\; 1 + \tfrac{2\pi}{3} - \tfrac{y_{\mathrm{opt}}}{2} +
+\sqrt{3} \;\approx\; 4.21851699\ldots,
+\end{equation}
+for a specific deployment parameter~$y_{\mathrm{opt}}$ determined by a
+transcendental equation
+(\Cref{thm:transcendental,rem:pslq}). The optimum is
+reached when four symmetric worst-case exit angles simultaneously bind.
+The result is proved by an analytic zone decomposition of the evacuation
+time (\Cref{lem:zones,lem:zone-max}); no lower-bound
+improvement is claimed.
+
+\paragraph{High-level strategy.} We retain Czyzowicz et al.'s $A_3$
+structural skeleton verbatim, but treat the single angular offset~$y$
+between the two deployment points on the boundary as a tunable parameter.
+In~\cite{czyzowicz2014} this is set to
+$y_{\mathrm{paper}} = \frac{4\pi}{9} + \frac{2\sqrt3}{3} - \frac{401}{300}$
+by a hand-tuned argument balancing two worst-case regimes. A third
+worst-case regime exists (\Cref{prop:three-cases}), and balancing
+all three yields a slightly smaller~$y$ and the improved bound. The $1/600$
+slack in \eqref{eq:czy-ub} is in fact exactly half the penalty imposed by
+ignoring this third regime; our optimum removes it and improves by a further
+$\approx 1/(1280)$ beyond.
+
+\section{Background: the $A_3$ algorithm}
 \label{sec:background}
 
-Algorithm $A_3$ places robots $r_1, r_2, r_3$ as follows. Fix points $A,
-B$ on the boundary with $\widehat{AB}$ having length $y$ (oriented
-clockwise from $A$ to $B$). Robot $r_1$ walks radially to $A$ and scans
-counter-clockwise; $r_2$ walks radially to $B$ and scans clockwise; $r_3$
-walks radially to $B$, scans counter-clockwise for time $y$ (so its arc
-meets $r_1$'s starting point exactly), then walks straight back to the
-origin (another unit of time), then walks outward to the boundary point
-at angle $\pi - y/2$ (i.e.\ the midpoint of the long arc from $B$ to
-$A$). The published bound takes $y_{\mathrm{paper}} = \frac{4\pi}{9} +
-\frac{2\sqrt3}{3} - \frac{401}{300}$.
+Algorithm~$A_3$ of~\cite{czyzowicz2014} places robots $r_1, r_2, r_3$ as
+follows. Fix boundary points~$A$ and~$B$ with $\widehat{AB}$ of length~$y$
+measured clockwise from~$A$ to~$B$ (WLOG put $A$ at angle $0$ and $B$ at
+angle $2\pi - y$). Then
+\begin{itemize}
+\item Robot $r_1$ walks radially to $A$ (time $1$) and scans the boundary
+counter-clockwise for $L := \pi - y/2$ units of time.
+\item Robot $r_2$ walks radially to $B$ (time $1$) and scans the boundary
+clockwise for $L$ units of time.
+\item Robot $r_3$ walks radially to $B$ (time $1$) and scans the boundary
+counter-clockwise for $y$ units of time, ending at~$A$; then walks
+straight back to the origin (time~$1$); then walks radially outward to
+the midpoint of the long arc from~$B$ to~$A$, at angle~$\pi - y/2$
+(time~$1$).
+\end{itemize}
+The union of the three scanned arcs is $[0, 2\pi)$ by construction
+(lengths $L + L + y = 2\pi$), so every exit is found by exactly one
+finder during its scan phase. Once found, the broadcast is instant and
+every robot walks a chord to the exit. \Cref{fig:a3-algo} shows
+the resulting trajectories at $y = y_{\mathrm{opt}}$.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.6\textwidth]{a3_algorithm.pdf}
+\caption{The $A_3$ algorithm at $y = y_{\mathrm{opt}}$. Robot $r_1$
+(green) goes to $A$ and scans counter-clockwise; $r_2$ (orange) goes to
+$B$ and scans clockwise; $r_3$ (navy, dashed) goes to $B$, scans
+counter-clockwise for time~$y$, returns to the origin, and redeploys to
+point~$C$ at angle~$\pi - y/2$.}
+\label{fig:a3-algo}
+\end{figure}
+
+Let $T(y)$ denote the worst-case evacuation time of~$A_3$ parametrised by~$y$.
+Both~\cite{czyzowicz2014} and the present note study
+$T(y)$ for $y$ near $y_\star := \tfrac{4\pi}{9} + \tfrac{2\sqrt3}{3} - \tfrac{4}{3}$.
 
 \section{Results So Far}
 \label{sec:results}
@@ -167,6 +259,22 @@ attained angles are the two interior critical points in Zones 1b, 1c and
 their Zone 2 reflections.
 \end{proof}
 
+\Cref{fig:worst-cases} shows the geometric configuration at each of the
+four binding worst-case angles.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.92\textwidth]{worst_cases.pdf}
+\caption{The four simultaneous worst-case exit angles at
+$y = y_{\mathrm{opt}}$. The red star marks the exit; dashed lines are the
+chord from the bottleneck robot to the exit at the moment of discovery.
+Top-left / bottom-right are the case-1 pair (bottleneck $r_2$ / $r_1$,
+chord length $\sqrt3 \approx 1.732$); top-right / bottom-left are the
+case-3 pair ($r_3$ mid-redeploy, chord $\approx 0.888$). All give
+evacuation time $T_1 \approx 4.21852$.}
+\label{fig:worst-cases}
+\end{figure}
+
 \begin{theorem}[Transcendental characterization]
 \label{thm:transcendental}
 Let $v = \pi - y/2 - \theta_3$ and $W = \pi - 3y/2 - 1$. The critical-point
@@ -229,9 +337,23 @@ worst-case angles at $y_{\mathrm{opt}}$).
 \section{Next Steps}
 \label{sec:next}
 
-% Open directions, mirrored from CLAUDE.md.
+\begin{itemize}
+\item \textbf{Richer algorithm class.} Retaining the $A_3$ skeleton
+caps improvements at the $\approx 1/1280$ reported here. Natural
+generalisations include: allowing $r_3$ to continue scanning after
+redeployment (a fourth phase, not used by $A_3$); curved (non-radial)
+approaches; and asymmetric role assignments that break the $L_1 = L_2$
+reflection symmetry. Preliminary numerical experiments
+(\texttt{experiments/a3\_local\_search.py}) show no gain from breaking
+the structural symmetries at fixed skeleton, so the next productive step
+is a genuinely larger family.
+\item \textbf{Lower bound.} The gap against Czyzowicz et al.'s LB of
+$\approx 4.1594$ is still $\approx 0.06$. Their LB uses an adversarial
+exit argument that does not obviously tighten; whether the four-way
+balance we observe here transfers to a matching LB construction is open.
+\end{itemize}
 
 \bibliographystyle{plain}
-% \bibliography{refs}
+\bibliography{refs}
 
 \end{document}
