@@ -135,16 +135,32 @@ Key facts at $y_{\mathrm{opt}} \approx 1.215858$:
 - Relaxing $L_1 = L_2$ and the redeploy angle $b = \pi - y/2$ gives no
   further gain (local search returns to these settings).
 
-**Open:**
-- Closed-form $y_{\mathrm{opt}}$ via symbolic solve of the coupled equations
-  $T_1(y) = T_3(y, v)$ + critical-point condition $d T_3 / d v = 0$ (see
-  `paper/main.tex` Sec. 3 for the transcendental system).
-- Genuinely richer trajectory family (curved approach, multi-segment $r_3$
-  after redeploy, etc.) to push below 4.218.
+**Transcendental characterization (Theorem 2 in paper):**
+$v_{\mathrm{opt}} \in (0, \pi/6)$ is the unique solution of
+\[
+\frac{\cos v + (1-\sin v)\sqrt{1-2\sin v}}{2 - \sin v} = v + \sqrt{3} -
+\tfrac{\pi}{3},
+\]
+and $y_{\mathrm{opt}}$, $UB$ are determined by $v_{\mathrm{opt}}$ explicitly.
+The Wolfram script at `analysis/a3_balance.wls` computes them to 40 digits.
 
-**Next action:** Wolfram symbolic derivation of $y_{\mathrm{opt}}$ from the
-coupled balance/critical-point equations, then incorporate the resulting
-closed form into the theorem statement.
+**No elementary closed form (Remark 1 in paper):** PSLQ over
+$\{1, \pi, \sqrt{3}, \sqrt{2}, \log 2, \log 3, \gamma\}$ proves no integer
+relation of norm $\le 15.2$ exists for $v_{\mathrm{opt}}$ or $UB$. The
+transcendental equation *is* the closed form.
+
+**Open:**
+- Rigorous proof that the 4 simultaneous worst-case angles found
+  numerically exhaust all worst cases (currently backed by fine-grid
+  simulator; need analytic verification on the remaining arcs).
+- Genuinely richer trajectory family (curved approach, multi-segment $r_3$
+  after redeploy, asymmetric role assignment) to push below 4.218.
+
+**Next action:** Rigorize Theorem 1 by proving analytically that for any
+$y$ in a neighborhood of $y_{\mathrm{opt}}$, the worst-case evac is
+attained at the 4 identified angles (plus reflections) and at no other
+angle. This upgrades the result from "numerical UB within the $A_3$
+family" to "proved UB within the $A_3$ family".
 
 ## Open problem candidates
 

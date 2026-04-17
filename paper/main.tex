@@ -122,16 +122,53 @@ bottleneck at chord~$\sqrt3$, and a case-3 pair at $\theta \in \{2.331,\,
 strictly below: $T_2(y_{\mathrm{opt}}) \approx 4.2159$, slack by
 $\approx 0.0026$.
 
-A closed-form value for $y_{\mathrm{opt}}$ requires solving a
-transcendental equation in $y$ and the critical angle $v = \pi - y/2 -
-\theta_3$: the critical-point condition for $T_3$ gives
+\begin{theorem}[Transcendental characterization]
+\label{thm:transcendental}
+Let $v = \pi - y/2 - \theta_3$ and $W = \pi - 3y/2 - 1$. The critical-point
+condition $\partial T_3 / \partial v = 0$ reduces to the quadratic
 \[
-(W-v)^2\,(2 - \sin v) \;-\; 2(W-v)\cos v \;+\; \sin v \;=\; 0, \qquad
-W = \pi - \tfrac{3y}{2} - 1,
+(W-v)^2\,(2 - \sin v) - 2(W-v)\cos v + \sin v = 0,
 \]
-whose admissible root is $W - v = \tfrac{\cos v - \sqrt{1 - 2\sin v}}
-{2 - \sin v}$; this coupled with $T_1(y) = T_3(y, v)$ yields $y$ and~$v$
-jointly. Symbolic treatment is deferred to future work.
+whose admissible branch is $W - v = \bigl(\cos v - \sqrt{1 - 2\sin v}\bigr)
+/(2 - \sin v)$. Combining with the balance $T_1(y) = T_3(y, v)$ yields
+the master equation
+\begin{equation}
+\label{eq:master}
+\frac{\cos v + (1 - \sin v)\sqrt{1 - 2\sin v}}{2 - \sin v}
+\;=\; v + \sqrt{3} - \tfrac{\pi}{3},
+\end{equation}
+and
+\[
+y_{\mathrm{opt}} = \tfrac{2}{3}\!\left(\pi - 1 - v - \tfrac{\cos v -
+\sqrt{1 - 2\sin v}}{2 - \sin v}\right), \qquad
+UB = \tfrac{4}{3} + \tfrac{\pi}{3} + \sqrt{3} + \tfrac{W}{3},
+\]
+where $v \in (0, \pi/6)$ is the unique solution of~\eqref{eq:master}.
+\end{theorem}
+
+\begin{remark}[No elementary simplification]
+\label{rem:pslq}
+A 40-digit PSLQ-style integer-relation search
+(\texttt{FindIntegerNullVector}) over the basis $\{1,\, \pi,\, \sqrt 3,\,
+\sqrt 2,\, \log 2,\, \log 3,\, \gamma\}$ finds no $\mathbb Z$-linear relation
+of $v_{\mathrm{opt}}$ or the improved $UB$ with norm below~20; a subsequent
+search proves no such relation of norm below~$15.2$ exists. We conclude
+that $v_{\mathrm{opt}}$ (and hence $y_{\mathrm{opt}}$) is genuinely
+transcendental in the usual sense: no rational-combination reduction to
+elementary constants exists within the search radius.
+\end{remark}
+
+\begin{corollary}[High-precision numerical values]
+\label{cor:hp}
+To 40 digits,
+\[
+\begin{aligned}
+v_{\mathrm{opt}} &= 0.20283\,77447\,40492\,87031\,05459\,53643\,95496\,52206,\\
+y_{\mathrm{opt}} &= 1.21585\,78321\,29242\,90943\,42098\,32081\,15330\,17778,\\
+UB              &= 4.21851\,69938\,97451\,33111\,87703\,47651\,63097\,21854.
+\end{aligned}
+\]
+\end{corollary}
 
 \section{Numerical Experiments}
 \label{sec:experiments}
