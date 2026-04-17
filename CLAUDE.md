@@ -122,14 +122,29 @@ local minimum and stays there. Blind global search in this space is
 wasteful — the good region is a narrow manifold (small $L_{2a}$, robot 2
 acts as a "positioner" not a scanner) that DE with Sobol init misses.
 
-**Next action:** Implement A3 **literally** from the paper (exact parameters
-of Czyzowicz et al. Theorem 6): $r_1$ to $A$; $r_2, r_3$ together to $B$
-with angular offset $y = 4\pi/9 + 2\sqrt{3}/3 - 401/300$; scan directions
-as specified; $r_3$ returns to origin and redeploys at angle $\pi - y/2$
-CW of $RB$. Verify the simulator reproduces $\approx 4.2193$. Then: local
-search (e.g., Nelder-Mead seeded at A3's $(y, \text{offsets})$) to see if
-the `1/300`-scale hand-tuning can be tightened, and extract the balancing
-conditions for a Wolfram-symbolic proof of whatever optimum we land at.
+**Result (numerical):** Within the A3 structural family, the paper's UB
+4.21930 is not tight; by tuning $y$ to balance the worst-case regimes,
+we achieve $T(y_{\mathrm{opt}}) \approx 4.21852$, an improvement of
+$\approx 0.00078$. See Thm 1 in `paper/main.tex`.
+
+Key facts at $y_{\mathrm{opt}} \approx 1.215858$:
+- Four simultaneous worst-case exit angles: $\{1.486, 3.581\}$ (r_1/r_2
+  bottleneck, chord $= \sqrt{3}$) and $\{2.331, 2.737\}$ (r_3
+  mid-redeploy, chord $\approx 0.888$). All give evac $= 4.218517$.
+- Case 2 ($\theta = \pi - y/2$, evac $= 3 + y$) is slack at 4.2159.
+- Relaxing $L_1 = L_2$ and the redeploy angle $b = \pi - y/2$ gives no
+  further gain (local search returns to these settings).
+
+**Open:**
+- Closed-form $y_{\mathrm{opt}}$ via symbolic solve of the coupled equations
+  $T_1(y) = T_3(y, v)$ + critical-point condition $d T_3 / d v = 0$ (see
+  `paper/main.tex` Sec. 3 for the transcendental system).
+- Genuinely richer trajectory family (curved approach, multi-segment $r_3$
+  after redeploy, etc.) to push below 4.218.
+
+**Next action:** Wolfram symbolic derivation of $y_{\mathrm{opt}}$ from the
+coupled balance/critical-point equations, then incorporate the resulting
+closed form into the theorem statement.
 
 ## Open problem candidates
 
