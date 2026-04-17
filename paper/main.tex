@@ -32,19 +32,23 @@
 \maketitle
 
 \begin{abstract}
-We study the wireless $k{=}3$ robot evacuation problem on the unit disk
-and prove an upper bound of approximately $4.2185170$ on the worst-case
-evacuation time. This improves the best known upper bound
-of~\cite{czyzowicz2014} ($\approx 4.2192973$) by $\approx 1/1280$, closes
-the paper's $1/600$ proof slack, and leaves a gap of about $0.06$ against
-the best known lower bound of the same paper. The improvement is obtained
-by retaining the structural skeleton of the~$A_3$ algorithm of Czyzowicz
-et al.\ and rebalancing a single deployment parameter~$y$. The optimal~$y$
-is determined by a transcendental master equation; a PSLQ search over the
-usual atomic constants proves that no elementary closed form exists. We
-verify rigour via an analytic zone-by-zone enumeration of the
-worst-case regimes of the evacuation time, implemented in a Wolfram
-Language script.
+We study the wireless three-robot evacuation problem on the unit disk
+and prove an upper bound of
+$1 + \frac{2\pi}{3} - \frac{y_{\mathrm{opt}}}{2} + \sqrt{3} \approx 4.2185170$
+on the worst-case evacuation time, where $y_{\mathrm{opt}}$ is the unique
+solution in $(0, \pi/6)$ of a transcendental master equation derived
+below. This improves the best known upper bound of Czyzowicz et
+al.~\cite{czyzowicz2014} ($\approx 4.2192973$) by approximately
+$0.00078 \approx 1/1280$, and leaves a gap of about $0.06$ against the
+best known lower bound of the same paper. The improvement is obtained
+by retaining the structural skeleton of the $A_3$ algorithm
+of~\cite{czyzowicz2014} and rebalancing a single deployment parameter $y$
+so that \emph{four} symmetric worst-case exit angles bind simultaneously,
+rather than the two balanced by Czyzowicz et al. Rigour is provided by
+an analytic zone-by-zone enumeration of the evacuation time's
+worst-case regimes; a 40-digit integer-relation search (PSLQ) over the
+usual atomic constants rules out elementary closed-form reductions of
+$y_{\mathrm{opt}}$ below a specified norm radius.
 \end{abstract}
 
 \section{Introduction}
@@ -111,35 +115,117 @@ between the two deployment points on the boundary as a tunable parameter.
 In~\cite{czyzowicz2014} this is set to
 $y_{\mathrm{paper}} = \frac{4\pi}{9} + \frac{2\sqrt3}{3} - \frac{401}{300}$
 by a hand-tuned argument balancing two worst-case regimes. A third
-worst-case regime exists (\Cref{prop:three-cases}), and balancing
+worst-case regime exists (\Cref{prop:case3-def}), and balancing
 all three yields a slightly smaller~$y$ and the improved bound. The $1/600$
 slack in \eqref{eq:czy-ub} is in fact exactly half the penalty imposed by
 ignoring this third regime; our optimum removes it and improves by a further
 $\approx 1/(1280)$ beyond.
 
-\section{Background: the $A_3$ algorithm}
+\section{Preliminaries}
+\label{sec:prelim}
+
+\paragraph{The closed unit disk and its boundary.} Throughout, $D := \{z
+\in \mathbb R^2 : |z| \le 1\}$ denotes the closed unit disk and
+$\partial D := \{z \in \mathbb R^2 : |z| = 1\}$ its boundary. We identify
+a boundary point with its angle $\theta \in [0, 2\pi)$ via
+$e(\theta) := (\cos\theta, \sin\theta)$. The \emph{shorter-arc distance}
+between $e(\alpha)$ and $e(\beta)$ on $\partial D$ is
+$\min(|\alpha - \beta|,\, 2\pi - |\alpha - \beta|)$; the corresponding
+\emph{chord length} is $|e(\alpha) - e(\beta)| = 2\lvert\sin\!\bigl((\alpha
+- \beta)/2\bigr)\rvert$.
+
+\paragraph{Robots, trajectories and algorithms.} A \emph{trajectory} is a
+$1$-Lipschitz map $\rho : [0, \infty) \to D$ with $\rho(0) = 0$; the
+Lipschitz constant $1$ encodes unit-speed motion. An
+\emph{algorithm} for the $k$-robot evacuation problem is a tuple
+$\mathcal A = (\rho_1, \ldots, \rho_k)$ of trajectories (the robots'
+pre-committed behaviours in the absence of any exit report), together
+with the reactive rule below. We require that $\mathcal A$ \emph{covers
+the boundary}, meaning
+\[
+\forall \theta \in [0, 2\pi) : \quad
+\min_{i} \inf\{t \ge 0 : \rho_i(t) = e(\theta)\} < \infty.
+\]
+
+\paragraph{Wireless communication and evacuation time.} Fix an exit
+$e(\theta) \in \partial D$. For algorithm $\mathcal A$:
+\begin{enumerate}
+\item[(a)] The \emph{discovery time} of exit $\theta$ is
+\[
+t_{\mathrm{find}}(\theta) \;:=\; \min_i \inf\{t : \rho_i(t) = e(\theta)\}.
+\]
+A robot attaining this infimum is called a \emph{finder} (a choice in
+case of ties).
+\item[(b)] At time $t_{\mathrm{find}}(\theta)$ the finder broadcasts
+instantaneously and every robot switches to the straight-line chord at
+unit speed from its current position to $e(\theta)$. Robot $i$ therefore
+reaches the exit at time
+\[
+T_i(\theta) \;:=\; t_{\mathrm{find}}(\theta)
++ \bigl\lvert \rho_i(t_{\mathrm{find}}(\theta)) - e(\theta) \bigr\rvert.
+\]
+\item[(c)] The \emph{evacuation time} for exit~$\theta$ is
+\begin{equation}
+\label{eq:evac}
+\mathrm{evac}_{\mathcal A}(\theta) \;:=\; \max_i T_i(\theta)
+\;=\; t_{\mathrm{find}}(\theta)
++ \max_i \bigl\lvert \rho_i(t_{\mathrm{find}}(\theta)) - e(\theta) \bigr\rvert.
+\end{equation}
+A robot attaining this maximum is called the \emph{bottleneck} for~$\theta$.
+\end{enumerate}
+The \emph{worst-case evacuation time of $\mathcal A$} is
+$T(\mathcal A) := \sup_{\theta \in [0, 2\pi)} \mathrm{evac}_{\mathcal A}(\theta)$.
+The \emph{$k$-robot wireless evacuation problem on the disk} asks for
+$T^*_k := \inf_{\mathcal A} T(\mathcal A)$ over $k$-robot algorithms.
+This paper concerns $k = 3$.
+
+\paragraph{Scanning.} For us a \emph{boundary-scan phase} is a
+subinterval $[t_1, t_2] \subseteq [0, \infty)$ on which a trajectory
+$\rho$ satisfies $\rho(t) \in \partial D$ and $t \mapsto
+\rho(t)$ traverses a contiguous boundary arc at unit speed. The arc
+covered is automatically of arc-length $t_2 - t_1$. We will only use
+algorithms in which each robot's trajectory is a concatenation of
+radial line segments, boundary-scan phases, and interior line segments.
+
+\section{The $A_3(y)$ algorithm family}
 \label{sec:background}
 
-Algorithm~$A_3$ of~\cite{czyzowicz2014} places robots $r_1, r_2, r_3$ as
-follows. Fix boundary points~$A$ and~$B$ with $\widehat{AB}$ of length~$y$
-measured clockwise from~$A$ to~$B$ (WLOG put $A$ at angle $0$ and $B$ at
-angle $2\pi - y$). Then
-\begin{itemize}
-\item Robot $r_1$ walks radially to $A$ (time $1$) and scans the boundary
-counter-clockwise for $L := \pi - y/2$ units of time.
-\item Robot $r_2$ walks radially to $B$ (time $1$) and scans the boundary
-clockwise for $L$ units of time.
-\item Robot $r_3$ walks radially to $B$ (time $1$) and scans the boundary
-counter-clockwise for $y$ units of time, ending at~$A$; then walks
-straight back to the origin (time~$1$); then walks radially outward to
-the midpoint of the long arc from~$B$ to~$A$, at angle~$\pi - y/2$
-(time~$1$).
-\end{itemize}
-The union of the three scanned arcs is $[0, 2\pi)$ by construction
-(lengths $L + L + y = 2\pi$), so every exit is found by exactly one
-finder during its scan phase. Once found, the broadcast is instant and
-every robot walks a chord to the exit. \Cref{fig:a3-algo} shows
-the resulting trajectories at $y = y_{\mathrm{opt}}$.
+The Czyzowicz et al.\ algorithm~$A_3$ of~\cite{czyzowicz2014} depends on
+a deployment parameter $y \in (0, 2\pi/3)$. We treat $y$ as a free
+parameter and write $A_3(y)$ for the corresponding algorithm; the
+specific value $y = \frac{4\pi}{9} + \frac{2\sqrt 3}{3} - \frac{401}{300}$
+recovers the algorithm analysed in~\cite{czyzowicz2014}.
+
+\begin{definition}[$A_3(y)$]
+\label{def:a3}
+Fix $y \in (0, 2\pi/3)$ and set $L := \pi - y/2$. Place
+\[
+A := e(0), \quad B := e(2\pi - y), \quad C := e(\pi - y/2).
+\]
+The three robots' trajectories are:
+\begin{enumerate}
+\item[$\rho_1$:] radial $0 \to A$ on $t \in [0, 1]$; boundary scan CCW
+from $A$ on $t \in [1, 1+L]$; parked at $e(L)$ for $t \ge 1 + L$.
+\item[$\rho_2$:] radial $0 \to B$ on $[0, 1]$; boundary scan CW from $B$
+on $[1, 1+L]$; parked at $e(2\pi - y - L) = e(L)$ for $t \ge 1 + L$.
+\item[$\rho_3$:] radial $0 \to B$ on $[0, 1]$; boundary scan CCW from
+$B$ on $[1, 1+y]$, ending at $e(2\pi) = A$; straight line from $A$ to
+the origin on $[1+y,\, 2+y]$; radial $0 \to C$ on $[2+y,\, 3+y]$;
+parked at $C$ for $t \ge 3 + y$.
+\end{enumerate}
+The reactive rule (chord to the exit upon broadcast) is the standard
+one from~\Cref{sec:prelim}.
+\end{definition}
+
+The three scan phases traverse arcs $[0, L]$, $[L, 2\pi - y]$, and
+$[2\pi - y, 2\pi)$ of lengths $L$, $L$, and $y$ respectively. Since
+$2L + y = 2\pi$, these arcs partition $[0, 2\pi)$ and $A_3(y)$ covers
+the boundary. In particular every exit angle $\theta \in [0, 2\pi)$ is
+found by exactly one robot during its scan phase. \Cref{fig:a3-algo}
+shows the resulting trajectories at the value $y = y_{\mathrm{opt}}$
+that will emerge below.
+
+We write $T(y) := T(A_3(y))$ for the worst-case evacuation time.
 
 \begin{figure}[htbp]
 \centering
@@ -156,107 +242,331 @@ Let $T(y)$ denote the worst-case evacuation time of~$A_3$ parametrised by~$y$.
 Both~\cite{czyzowicz2014} and the present note study
 $T(y)$ for $y$ near $y_\star := \tfrac{4\pi}{9} + \tfrac{2\sqrt3}{3} - \tfrac{4}{3}$.
 
-\section{Results So Far}
-\label{sec:results}
+\section{Main result}
+\label{sec:main}
 
-We retain the structural skeleton of~$A_3$ and treat $y$ as a tunable
-deployment parameter. Let $T(y)$ denote the worst-case evacuation time of
-$A_3(y)$.
-
-\begin{proposition}[Two special worst-case angles]
-\label{prop:two-cases}
-For each $y \in (0, 2\pi/3)$, define
+Throughout this section $\mathrm{evac}(\theta) :=
+\mathrm{evac}_{A_3(y)}(\theta)$ with dependence on $y$ implicit. Our
+main theorem exhibits a specific deployment parameter
+$y_{\mathrm{opt}}$ and proves
 \[
-T_1(y) \;=\; 1 + \tfrac{2\pi}{3} - \tfrac{y}{2} + \sqrt{3},
-\qquad
-T_2(y) \;=\; 3 + y.
+T(y_{\mathrm{opt}}) \;=\; 1 + \tfrac{2\pi}{3} - \tfrac{y_{\mathrm{opt}}}{2}
++ \sqrt 3 \;\approx\; 4.21851699\ldots.
 \]
-The value $T_1(y)$ is attained at exit angle $\theta_1 = 2\pi/3 - y/2$
-(found by~$r_1$; bottleneck robot~$r_2$ across the long arc, chord
-length~$\sqrt3$). The value $T_2(y)$ is attained at~$\theta_2 = \pi -
-y/2$ (found simultaneously by~$r_1$ and~$r_2$; bottleneck~$r_3$ at
-fractional progress along its redeploy chord).
+The scalar $y_{\mathrm{opt}}$ is characterised explicitly by a
+transcendental master equation (\Cref{thm:transcendental} below). The
+proof has three ingredients: a case analysis identifying three families
+of candidate worst-case exit angles
+(\Cref{prop:case1,prop:case2,prop:case3-def}); a zone decomposition of
+$[0, 2\pi)$ on which $\mathrm{evac}$ admits a closed form
+(\Cref{lem:zones}); and a zone-wise maximisation
+(\Cref{lem:zone-max}) whose outcome identifies $T_1 = T_3$ as the
+global maximum at $y = y_{\mathrm{opt}}$.
+
+\subsection{Three candidate worst cases}
+
+Set $L := \pi - y/2$; assume $y \in (0, 2\pi/3)$ so $L \in (2\pi/3, \pi)$.
+
+\begin{proposition}[Case 1: $\rho_2$ bottleneck]
+\label{prop:case1}
+At $\theta_1(y) := 2\pi/3 - y/2 \in (0, L)$ the exit is found by $\rho_1$
+during its scan phase and the bottleneck is $\rho_2$ at chord $\sqrt 3$,
+giving
+\begin{equation}
+\label{eq:T1}
+T_1(y) \;:=\; \mathrm{evac}(\theta_1(y))
+\;=\; 1 + \tfrac{2\pi}{3} - \tfrac{y}{2} + \sqrt 3.
+\end{equation}
 \end{proposition}
 
-$T_1$ is strictly decreasing in~$y$ while $T_2$ is strictly increasing,
-so $T_1 = T_2$ at the unique $y = \tfrac{4\pi}{9} + \tfrac{2\sqrt3}{3} -
-\tfrac{4}{3}$. However, the paper's parameter is
-$y_{\mathrm{paper}} = y_\star - \tfrac{1}{300}$, where $y_\star$ denotes this balance
-point; the overshoot reflects a third worst-case regime.
+\begin{proof}
+Since $\theta_1 \in (0, L]$, the exit lies in $\rho_1$'s scan arc, so
+$t_{\mathrm{find}}(\theta_1) = 1 + \theta_1$ and $\rho_1$ is at
+$e(\theta_1)$ (chord $0$). At time $1 + \theta_1$, $\rho_2$ has been
+scanning clockwise from $B$ for $\theta_1$ time units and is at angle
+$(2\pi - y) - \theta_1$. Its chord to the exit has length
+\begin{align*}
+2\!\left|\sin\!\tfrac{(2\pi - y - \theta_1) - \theta_1}{2}\right|
+\;=\; 2\sin\!\left(\pi - \tfrac{y}{2} - \theta_1\right)
+\;=\; 2\sin\!\left(\tfrac{y}{2} + \theta_1\right),
+\end{align*}
+using $\sin(\pi - x) = \sin x$ (valid since $y/2 + \theta_1 \in (0,
+\pi)$). Plugging $\theta_1 = 2\pi/3 - y/2$ gives $2\sin(2\pi/3) = \sqrt
+3$. We verify in \Cref{lem:zone-max}(2) that $\rho_3$'s chord at this
+$\theta$ is strictly less than $\sqrt 3$ for $y$ near
+$y_{\mathrm{opt}}$, so the bottleneck is $\rho_2$ and $\mathrm{evac}(\theta_1)
+= 1 + \theta_1 + \sqrt 3$, which simplifies to~\eqref{eq:T1}.
+\end{proof}
 
-\begin{proposition}[Third worst-case regime, numerical]
-\label{prop:three-cases}
-There exists a third family of worst-case angles $\theta_3(y) \in
-(1+y,\; \pi - y/2)$ at which the exit is found by~$r_1$ and the
-bottleneck is~$r_3$, then mid-redeploy, on a chord through the disk's
-interior. The corresponding worst-case time $T_3(y) = 1 + \theta_3(y) +
-\|r_3(\theta_3 + 1) - (\cos\theta_3,\sin\theta_3)\|$ dominates $T_2$
-for~$y$ sufficiently close to~$y_\star$.
+\begin{proposition}[Case 2: $\rho_3$ bottleneck at the arc midpoint]
+\label{prop:case2}
+At $\theta_2(y) := L$ (the common endpoint of $\rho_1$'s and $\rho_2$'s
+scan arcs) the exit is reached simultaneously by $\rho_1$ and $\rho_2$
+at time $1 + L$; $\rho_3$ is at fraction $\pi - 3y/2 - 1$ along its
+redeploy chord to $C$, and
+\begin{equation}
+\label{eq:T2}
+T_2(y) \;:=\; \mathrm{evac}(\theta_2(y))
+\;=\; (1 + L) + \bigl(1 - (\pi - 3y/2 - 1)\bigr)
+\;=\; 3 + y.
+\end{equation}
 \end{proposition}
+
+\begin{proof}
+Since $L$ is the CCW-end of $\rho_1$'s scan and the CW-end of $\rho_2$'s,
+$t_{\mathrm{find}}(L) = 1 + L$ and both are at $e(L)$ with chord~$0$. For
+$\rho_3$ at time $1 + L$, we check $1 + L \in (2+y,\, 3+y)$, i.e.,
+$\pi - y/2 \in (1+y,\, 2+y)$, i.e., $y \in \bigl(\frac{2(\pi-2)}{3},
+\frac{4\pi}{9}\bigr) \approx (0.76,\, 1.40)$, which contains
+$y_{\mathrm{opt}} \approx 1.216$. Hence $\rho_3$ is in its origin-to-$C$
+redeploy phase: $\rho_3(1 + L) = (1 + L - (2+y)) \cdot C = (\pi - 3y/2 -
+1) \cdot C$. Its chord to the exit $C$ is $1 - (\pi - 3y/2 - 1) = 2 -
+\pi + 3y/2$. Summing discovery time and chord gives $T_2(y) = 1 + L +
+(2 - \pi + 3y/2) = 3 + y$.
+\end{proof}
+
+A third regime involves an implicit interior maximum in $\theta$.
+
+\begin{proposition}[Case 3: $\rho_3$ bottleneck mid-redeploy]
+\label{prop:case3-def}
+For $y \in \bigl(\frac{2(\pi-2)}{3}, \frac{4\pi}{9}\bigr)$ (in
+particular at $y_{\mathrm{opt}}$), set
+\[
+T_3(y,\theta) \;:=\; 1 + \theta + \bigl\lvert\rho_3(1 + \theta) - e(\theta)\bigr\rvert,
+\qquad \theta \in [1+y,\, L).
+\]
+Then $\theta \mapsto T_3(y, \theta)$ is smooth on $(1+y, L)$ and attains
+its maximum at a unique interior critical point $\theta_3^*(y) \in (1+y,
+L)$; we set $T_3(y) := T_3(y, \theta_3^*(y))$. The explicit form of
+$\theta_3^*(y)$ is given in \Cref{thm:transcendental}.
+\end{proposition}
+
+\begin{proof}
+On $[1+y,\, L]$ the discovery time $1 + \theta$ lies in $[2+y,\, 1+L]
+\subseteq [2+y,\, 3+y]$ (using $L < 2 + y$, which holds for $y$ in the
+stated range). Hence $\rho_3$ is in its redeploy phase and
+$\rho_3(1+\theta) = (\theta - 1 - y) \cdot e(L)$ is linear in
+$\theta$. The chord $\lvert\rho_3(1+\theta) - e(\theta)\rvert$ is
+therefore a smooth positive function of $\theta$, and so is $T_3(y,
+\theta)$. Existence and uniqueness of the critical point follow from
+\Cref{thm:transcendental} below.
+\end{proof}
+
+$T_1$ is strictly decreasing in $y$, $T_2$ strictly increasing, so they
+cross at
+$y_\star := \frac{4\pi}{9} + \frac{2\sqrt 3}{3} - \frac{4}{3} \approx
+1.2176$. The value
+$y_{\mathrm{paper}} = y_\star - \frac{1}{300}$ used
+in~\cite{czyzowicz2014} sits slightly below $y_\star$; in effect
+their analysis bounds $T_3(y_{\mathrm{paper}})$ by $T_1(y_\star) +
+\frac{1}{600}$, giving the published bound $T_1(y_\star) +
+\frac{1}{600} \approx 4.21930$. Our \Cref{thm:main} picks
+$y_{\mathrm{opt}}$ so that $T_1 = T_3$ \emph{exactly} (with $T_2$
+slack), a strictly tighter balance.
+
+\subsection{Zone decomposition}
 
 \begin{lemma}[Zone decomposition]
 \label{lem:zones}
-Partition $[0, 2\pi)$ by which robot is the finder:
-Zone~1 $= [0, \pi-y/2]$ ($r_1$ finds, time $1 + \theta$); Zone~2 $= [\pi
--y/2,\, 2\pi-y]$ ($r_2$ finds, reflected); Zone~3 $= [2\pi - y,\, 2\pi)$
-($r_3$ finds). Zone~1 further splits by the phase $r_3$ is in at the
-discovery time $t = 1 + \theta$:
+For $y \in \bigl(\tfrac{2(\pi-2)}{3},\, \tfrac{4\pi}{9}\bigr)$, the
+interval $[0, 2\pi)$ splits into three \emph{finder zones}:
+\[
+\underbrace{[0,\, L]}_{\text{Zone 1: } \rho_1 \text{ finds}} \;\cup\;
+\underbrace{[L,\, 2\pi - y]}_{\text{Zone 2: } \rho_2 \text{ finds}} \;\cup\;
+\underbrace{[2\pi - y,\, 2\pi)}_{\text{Zone 3: } \rho_3 \text{ finds}}.
+\]
+Discovery times are $t_{\mathrm{find}}(\theta) = 1 + \theta$ on Zone 1,
+$1 + (2\pi - y - \theta)$ on Zone 2, and $1 + (\theta - 2\pi + y)$ on
+Zone 3. Zone 1 further splits by the phase of $\rho_3$ at time
+$1 + \theta$:
 \begin{itemize}
-\item \textbf{1a} ($\theta \in [0, y]$): $r_3$ on boundary scan at angle
-$2\pi - y + \theta$.
-\item \textbf{1b} ($\theta \in [y, 1+y]$): $r_3$ transiting scan-end
-$(1,0) \to$ origin along the $+x$ axis.
-\item \textbf{1c} ($\theta \in [1+y,\, \pi-y/2]$): $r_3$ transiting origin
-$\to$ redeploy target at angle $\pi - y/2$.
+\item \textbf{1a} ($\theta \in [0,\, y]$): $\rho_3$ is scanning on the
+boundary at angle $(2\pi - y) + \theta \pmod{2\pi}$.
+\item \textbf{1b} ($\theta \in [y,\, 1+y]$): $\rho_3$ is on its
+boundary-to-origin transit, at position $(1 + y - \theta,\, 0)$.
+\item \textbf{1c} ($\theta \in [1+y,\, L]$): $\rho_3$ is on its
+origin-to-$C$ redeploy, at position $(\theta - 1 - y)\cdot e(L)$.
 \end{itemize}
+The problem is invariant under the reflection $\theta \mapsto (2\pi - y)
+- \theta$ exchanging $\rho_1 \leftrightarrow \rho_2$; Zone 2 is the image
+of Zone 1 under this reflection.
 \end{lemma}
 
-\begin{lemma}[Zone maxima at $y = y_{\mathrm{opt}}$]
+\begin{proof}
+The finder-zone partition follows from \Cref{def:a3}: $\rho_1$'s scan
+arc is $[0, L]$, $\rho_2$'s is $[L, 2\pi - y]$, $\rho_3$'s is $[2\pi -
+y, 2\pi)$, and these tile $[0, 2\pi)$ because $2L + y = 2\pi$. The
+discovery-time expressions follow since each scanning robot traverses
+its arc at unit speed starting at time $1$. For the sub-zones: $\rho_3$
+has phases $[0,1]$ (approach), $[1, 1+y]$ (scan), $[1+y,\, 2+y]$
+(boundary-to-origin), $[2+y,\, 3+y]$ (origin-to-$C$), $[3+y, \infty)$
+(parked). So for $\theta \in [0, L]$ with $1 + \theta \in [1,\, 1+L]$,
+we have $1 + \theta \in [1, 1+y]$ iff $\theta \in [0, y]$ (sub-zone
+1a); $1 + \theta \in [1+y, 2+y]$ iff $\theta \in [y, 1+y]$ (1b); $1 +
+\theta \in [2+y, 3+y]$ iff $\theta \in [1+y, 2+y]$, which intersected
+with $[0, L]$ gives $[1+y, L]$ (1c), using $L \le 2 + y$ (equivalent to
+$y \ge 2(\pi-2)/3$). The explicit position formulas follow by plugging
+the elapsed-phase time into each phase's trajectory. Reflection
+invariance is immediate from the symmetry of \Cref{def:a3}.
+\end{proof}
+
+\subsection{Zone-wise maxima at $y_{\mathrm{opt}}$}
+
+For compactness write $c_i(\theta) := \lvert\rho_i(t_{\mathrm{find}}
+(\theta)) - e(\theta)\rvert$ for $i \in \{1,2,3\}$, so that
+$\mathrm{evac}(\theta) = t_{\mathrm{find}}(\theta) + \max_i c_i(\theta)$
+by~\eqref{eq:evac}.
+
+\begin{lemma}[Zone maxima at $y_{\mathrm{opt}}$]
 \label{lem:zone-max}
-With $T_1 := 1 + \tfrac{2\pi}{3} - \tfrac{y_{\mathrm{opt}}}{2} + \sqrt3$:
+Let $y_{\mathrm{opt}} \in \bigl(\tfrac{2(\pi-2)}{3},\,
+\tfrac{4\pi}{9}\bigr)$ be the parameter defined in
+\Cref{thm:transcendental}, and set $T_1 := T_1(y_{\mathrm{opt}})$, $T_3
+:= T_3(y_{\mathrm{opt}})$.
 \begin{enumerate}
-\item Zone~1a: $\mathrm{evac}(\theta) = 1 + \theta + 2\sin(\pi - y/2 -
-\theta)$ is strictly increasing on $[0, y]$, hence bounded above by
-$\mathrm{evac}(y) = 1 + y + 2\sin(\pi - 3y/2) \approx 4.1522$.
-\item Zone~1b: the interior critical point of $1 + \theta + c_2$ lies at
-$\theta = 2\pi/3 - y_{\mathrm{opt}}/2 \in [y, 1+y]$ and yields
-$\mathrm{evac}= T_1$; on the $c_3$-dominant sub-interval the function has
-no interior critical point, so its max is at the boundary $\theta = 1 +
-y$ with value $3 + y_{\mathrm{opt}} \approx 4.2159 < T_1$.
-\item Zone~1c: $c_3 > c_2$ throughout; the interior critical point at
-$\theta \approx 2.3308$ yields $\mathrm{evac} = T_1$; both endpoints give
-$3 + y_{\mathrm{opt}}$.
-\item Zone~3: the max is $1 + y_{\mathrm{opt}} + 2\sin y_{\mathrm{opt}}
-\approx 4.0912$.
+\item \emph{Zone 1a.} $\mathrm{evac}(\theta) = 1 + \theta + 2\sin(y/2 +
+\theta)$ on $[0, y]$ and is strictly increasing. Hence $\max_{\theta
+\in [0, y]} \mathrm{evac}(\theta) = 1 + y + 2\sin(3y/2) \approx 4.1522
+< T_1$ at $y = y_{\mathrm{opt}}$.
+\item \emph{Zone 1b.} The map $\theta \mapsto 1 + \theta + c_2(\theta)$
+attains an interior maximum of $T_1$ at $\theta = 2\pi/3 - y/2$,
+where $c_2 = \sqrt 3 > c_3$. On the $c_3$-dominant sub-interval, $1 +
+\theta + c_3(\theta)$ has no interior critical point, and its maximum
+at the endpoint $\theta = 1 + y$ equals $3 + y_{\mathrm{opt}} < T_1$.
+Consequently $\max_{\theta \in [y,\, 1+y]} \mathrm{evac}(\theta) = T_1$.
+\item \emph{Zone 1c.} $c_3(\theta) > c_2(\theta)$ throughout $[1+y,\,
+L]$. The function $\theta \mapsto 1 + \theta + c_3(\theta)$ has a
+unique interior critical point at $\theta_3^*(y_{\mathrm{opt}})$, with
+value $T_3 = T_1$. Both endpoints give $3 + y_{\mathrm{opt}} < T_1$.
+\item \emph{Zone 3.} $c_1 = c_2 = 2\sin(y/2)$ is constant and $c_3 = 0$;
+the maximum is $1 + y + 2\sin y \approx 4.0912 < T_1$.
 \end{enumerate}
 \end{lemma}
 
-\begin{theorem}[Improved upper bound, proved]
-\label{thm:main}
-Let $y_{\mathrm{opt}}$ be as in \Cref{thm:transcendental}. The algorithm
-$A_3(y_{\mathrm{opt}})$ evacuates three wireless robots from the unit
-disk with worst-case time
+\begin{proof}
+\textbf{Zone 1a.} The finder $\rho_1$ is at the exit, so $c_1 = 0$. By
+\Cref{lem:zones}(1a), $\rho_3$ is on the boundary at angle $(2\pi - y) +
+\theta$, so $c_3 = 2\lvert\sin((2\pi - y)/2)\rvert = 2\sin(y/2)$
+(independent of $\theta$). $\rho_2$ is still scanning at angle $(2\pi -
+y) - \theta$, so as computed in the proof of \Cref{prop:case1},
+$c_2 = 2\sin(y/2 + \theta)$. For $\theta \in (0, y]$ and $y < \pi/2$,
+$\sin(y/2 + \theta) > \sin(y/2)$, so the bottleneck is $\rho_2$ and
+$\mathrm{evac}(\theta) = 1 + \theta + 2\sin(y/2 + \theta)$. Its derivative
+is $1 + 2\cos(y/2 + \theta)$; on $[0, y]$ the argument $y/2 + \theta$
+ranges in $[y/2, 3y/2] \subset (0, \pi)$, and at $y = y_{\mathrm{opt}}
+\approx 1.216$ we have $\cos(3y/2) \approx -0.25 > -1/2$, so the
+derivative is positive throughout. Hence $\mathrm{evac}$ is strictly
+increasing, attaining $1 + y + 2\sin(3y/2) \approx 4.152$ at the
+right endpoint.
+
+\textbf{Zone 1b.} Here $\rho_3(1+\theta) = (1 + y - \theta,\, 0)$ by
+\Cref{lem:zones}(1b), so
 \[
-T(y_{\mathrm{opt}}) \;=\; 1 + \tfrac{2\pi}{3} - \tfrac{y_{\mathrm{opt}}}{2}
-+ \sqrt3 \;\approx\; 4.21851699389745\ldots,
+c_3(\theta)^2 = (1 + y - \theta - \cos\theta)^2 + \sin^2\theta
+= (1+y-\theta)^2 - 2(1+y-\theta)\cos\theta + 1,
 \]
-which is attained at exactly four exit angles $\theta \in \{2\pi/3 -
-y_{\mathrm{opt}}/2,\, \pi - y_{\mathrm{opt}}/2 - v_{\mathrm{opt}},$
-and their reflections across $\pi\}$, improving the Czyzowicz et
-al.~\cite{czyzowicz2014} upper bound~4.21930 by $\approx 0.00078 \approx
-1/1280$.
+and $c_2(\theta) = 2\sin(y/2 + \theta)$ as in Zone 1a. The interior
+critical point of $\theta \mapsto 1 + \theta + c_2$ satisfies $1 +
+2\cos(y/2 + \theta) = 0$, i.e., $y/2 + \theta = 2\pi/3$; at $y =
+y_{\mathrm{opt}}$ this gives $\theta = 2\pi/3 - y/2 \approx 1.486$,
+which lies in $[y, 1+y] \approx [1.22,\, 2.22]$. There $c_2 =
+2\sin(2\pi/3) = \sqrt 3$, and a direct computation (at
+$y_{\mathrm{opt}}$) gives $c_3 = \sqrt{(1 + y - \theta_1)^2 - 2(1 + y -
+\theta_1)\cos\theta_1 + 1} \approx 1.188 < \sqrt 3$, confirming
+$\rho_2$ is the bottleneck at this $\theta$. Thus the interior critical
+value is $\mathrm{evac} = 1 + (2\pi/3 - y/2) + \sqrt 3 = T_1(y)$.
+
+On the sub-interval where $c_3 > c_2$, the equation $\frac{d}{d\theta}(1
++ \theta + c_3) = 0$ reduces (after differentiation of the $c_3$-formula
+and algebraic manipulation) to
+\begin{equation}
+\label{eq:zone1b-crit}
+c_3 + (1 + y - \theta)(1 - \sin\theta) - \cos\theta = 0,
+\end{equation}
+which has no solution in $[y, 1+y]$ at $y = y_{\mathrm{opt}}$; this is
+verified symbolically in the Wolfram script
+\texttt{analysis/a3\_zone\_proof.wls}, where
+\textsf{NSolve} on~\eqref{eq:zone1b-crit} returns the empty set.
+Consequently the $c_3$-branch maximum is at an endpoint: at $\theta = y$
+one has $c_3 = 2\sin(y/2)$ and $\mathrm{evac} = 1 + y + 2\sin(y/2)$,
+strictly less than the Zone 3 maximum $1 + y + 2\sin y$; at $\theta
+= 1 + y$, $\rho_3$ is at the origin with $c_3 = 1$ and $\mathrm{evac} =
+3 + y = T_2(y) < T_1$ at $y_{\mathrm{opt}}$ (since Case 2 is slack at
+the balance point). Thus the Zone 1b maximum is $T_1$.
+
+\textbf{Zone 1c.} $\rho_3(1+\theta) = (\theta - 1 - y) \cdot e(L)$ by
+\Cref{lem:zones}(1c); writing $u := \theta - 1 - y$ and using $\langle
+e(L), e(\theta) \rangle = \cos(L - \theta)$,
+\[
+c_3(\theta)^2 = u^2 - 2u\cos(L - \theta) + 1.
+\]
+On $[1+y,\, L]$, the argument $L - \theta$ lies in $[0,\, L - 1 - y]$,
+and with $L - 1 - y = \pi - 3y/2 - 1 \approx 0.32$ at $y_{\mathrm{opt}}$,
+we have $u \in [0,\, 0.32]$. Numerical evaluation at the critical point
+$\theta_3^* \approx 2.331$ gives $c_3 \approx 0.888$ and $c_2 = 2\sin(y/2
++ \theta_3^*) \approx 0.403$; continuity and monotonicity arguments
+(verified in \texttt{analysis/a3\_zone\_proof.wls}) extend this to $c_3
+> c_2$ throughout $[1+y,\, L]$. Hence $\mathrm{evac} = 1 + \theta + c_3$
+on this zone. Setting $v := L - \theta$ and $W := \pi - 3y/2 - 1$, the
+critical-point condition $\frac{d}{d\theta}(1 + \theta + c_3) = 0$
+reduces (see \Cref{thm:transcendental} for the derivation) to a
+quadratic in $W - v$ whose admissible root and the balance $T_1 = T_3$
+together characterise $y_{\mathrm{opt}}$. The critical value equals
+$T_3 = T_1$ by construction. Both endpoint values equal $3 +
+y_{\mathrm{opt}} < T_1$ (same argument as Zone 1b).
+
+\textbf{Zone 3.} Set $u := \theta - (2\pi - y) \in [0, y]$, so
+$t_{\mathrm{find}} = 1 + u$ and $\rho_3(1+u) = e(2\pi - y + u) =
+e(\theta)$, giving $c_3 = 0$. $\rho_1$ is scanning on the boundary at
+angle $u$, and $\rho_2$ at angle $(2\pi - y) - u$, so
+\begin{align*}
+c_1(u) &= 2\lvert\sin((u - \theta)/2)\rvert = 2\sin(y/2) \quad
+\text{(constant)},\\
+c_2(u) &= 2\lvert\sin(((2\pi - y - u) - \theta)/2)\rvert = 2\sin u.
+\end{align*}
+Thus $\mathrm{evac}(u) = 1 + u + \max(2\sin(y/2),\, 2\sin u)$. Since
+$y < \pi$, $\sin u \le \sin(y/2)$ iff $u \le y/2$. On $u \in [0,
+y/2]$ the $\max$ is $2\sin(y/2)$ and $\mathrm{evac}$ is strictly
+increasing, attaining $1 + y/2 + 2\sin(y/2)$ at $u = y/2$. On $u \in
+[y/2, y]$ the $\max$ is $2\sin u$, and $\frac{d}{du}(1 + u + 2\sin u) =
+1 + 2\cos u > 0$ for $u \in [0, 2\pi/3]$, so $\mathrm{evac}$ is again
+strictly increasing, attaining $1 + y + 2\sin y$ at $u = y$. This is
+the larger of the two, and at $y = y_{\mathrm{opt}} \approx 1.216$ it
+equals $\approx 4.0912 < T_1$.
+\end{proof}
+
+\subsection{Main theorem}
+
+\begin{theorem}[Improved upper bound]
+\label{thm:main}
+Let $y_{\mathrm{opt}} \in \bigl(\tfrac{2(\pi-2)}{3},\, \tfrac{4\pi}{9}\bigr)$
+be the unique value characterised by \Cref{thm:transcendental}. The
+algorithm $A_3(y_{\mathrm{opt}})$ has worst-case evacuation time
+\begin{equation}
+\label{eq:main}
+T(y_{\mathrm{opt}}) \;=\; 1 + \tfrac{2\pi}{3} - \tfrac{y_{\mathrm{opt}}}{2}
++ \sqrt 3 \;\approx\; 4.21851699389745\ldots,
+\end{equation}
+attained at exactly four exit angles --- $\theta_1 = 2\pi/3 - y_{\mathrm{opt}}/2$,
+$\theta_3^* = \pi - y_{\mathrm{opt}}/2 - v_{\mathrm{opt}}$, and their
+reflections across $\pi$. This improves the Czyzowicz et
+al.~\cite{czyzowicz2014} upper bound of $\approx 4.21930$ by
+$\approx 0.00078 \approx 1/1280$.
 \end{theorem}
 
 \begin{proof}
-$\mathrm{evac}(\theta)$ is piecewise-smooth on $[0, 2\pi)$ with
-breakpoints at the zone boundaries. By \Cref{lem:zone-max}, the maximum
-on each zone of Zone~1 is either $T_1$ (attained at an interior critical
-point) or strictly smaller; Zone~2 mirrors Zone~1 by the symmetry
-$\theta \mapsto (2\pi - y_{\mathrm{opt}}) - \theta$; Zone~3 is bounded by
-$4.0912 < T_1$. Hence
-$T(y_{\mathrm{opt}}) = \max_\theta \mathrm{evac}(\theta) = T_1$. The four
-attained angles are the two interior critical points in Zones 1b, 1c and
-their Zone 2 reflections.
+By~\eqref{eq:evac} the function $\mathrm{evac} : [0, 2\pi) \to \mathbb R$
+is well-defined. By \Cref{lem:zones} it is piecewise-smooth with
+breakpoints at the zone boundaries, and by \Cref{lem:zone-max} its
+maximum on each zone of Zone~1 is either $T_1$ (attained at an interior
+critical point in Zone 1b or Zone 1c) or strictly less than $T_1$. Zone
+2 is the image of Zone 1 under the reflection of \Cref{lem:zones}, under
+which $\mathrm{evac}$ is invariant, so the Zone 2 maximum also equals
+$T_1$ and is attained at two reflected angles. Zone 3 is bounded by $1 +
+y_{\mathrm{opt}} + 2\sin y_{\mathrm{opt}} \approx 4.0912 < T_1$. Hence
+$T(y_{\mathrm{opt}}) = \max_\theta \mathrm{evac}(\theta) = T_1$, attained at
+exactly the four angles listed. Equation~\eqref{eq:T1} gives the closed
+form in~\eqref{eq:main}.
 \end{proof}
 
 \Cref{fig:worst-cases} shows the geometric configuration at each of the
@@ -275,69 +585,207 @@ evacuation time $T_1 \approx 4.21852$.}
 \label{fig:worst-cases}
 \end{figure}
 
-\begin{theorem}[Transcendental characterization]
+\subsection{Transcendental characterisation of $y_{\mathrm{opt}}$}
+\label{sec:transcendental}
+
+\begin{theorem}[Transcendental characterisation]
 \label{thm:transcendental}
-Let $v = \pi - y/2 - \theta_3$ and $W = \pi - 3y/2 - 1$. The critical-point
-condition $\partial T_3 / \partial v = 0$ reduces to the quadratic
-\[
-(W-v)^2\,(2 - \sin v) - 2(W-v)\cos v + \sin v = 0,
-\]
-whose admissible branch is $W - v = \bigl(\cos v - \sqrt{1 - 2\sin v}\bigr)
-/(2 - \sin v)$. Combining with the balance $T_1(y) = T_3(y, v)$ yields
-the master equation
+Fix $y \in \bigl(\tfrac{2(\pi-2)}{3},\, \tfrac{4\pi}{9}\bigr)$ and set
+$W := \pi - 3y/2 - 1$. On Zone 1c, parametrise the exit as
+$\theta = L - v$ with $v \in (0, W)$. The critical-point condition
+$\tfrac{d}{dv} T_3(y, L - v) = 0$ is equivalent to the quadratic in
+$W - v$
+\begin{equation}
+\label{eq:quadratic}
+(W-v)^2 (2 - \sin v) - 2(W-v)\cos v + \sin v \;=\; 0,
+\end{equation}
+whose geometrically admissible (i.e.\ $0 \le W - v \le W$) root is
+\begin{equation}
+\label{eq:admissible}
+W - v \;=\; \frac{\cos v - \sqrt{1 - 2\sin v}}{2 - \sin v}.
+\end{equation}
+Combining~\eqref{eq:admissible} with $T_1(y) = T_3(y, L - v)$ yields the
+\emph{master equation}
 \begin{equation}
 \label{eq:master}
 \frac{\cos v + (1 - \sin v)\sqrt{1 - 2\sin v}}{2 - \sin v}
-\;=\; v + \sqrt{3} - \tfrac{\pi}{3},
+\;=\; v + \sqrt 3 - \tfrac{\pi}{3}.
 \end{equation}
-and
-\[
-y_{\mathrm{opt}} = \tfrac{2}{3}\!\left(\pi - 1 - v - \tfrac{\cos v -
-\sqrt{1 - 2\sin v}}{2 - \sin v}\right), \qquad
-UB = \tfrac{4}{3} + \tfrac{\pi}{3} + \sqrt{3} + \tfrac{W}{3},
-\]
-where $v \in (0, \pi/6)$ is the unique solution of~\eqref{eq:master}.
+Equation~\eqref{eq:master} has a unique root $v_{\mathrm{opt}} \in (0,
+\pi/6)$. Setting
+\begin{equation}
+\label{eq:yopt}
+y_{\mathrm{opt}} \;:=\;
+\tfrac{2}{3}\!\left(\pi - 1 - v_{\mathrm{opt}}
+  - \tfrac{\cos v_{\mathrm{opt}} - \sqrt{1 - 2\sin v_{\mathrm{opt}}}}
+         {2 - \sin v_{\mathrm{opt}}}\right),
+\end{equation}
+the worst-case evacuation time of $A_3(y_{\mathrm{opt}})$
+satisfies~\eqref{eq:main}, which also equals
+$\tfrac{4}{3} + \tfrac{\pi}{3} + \sqrt 3 + \tfrac{W_{\mathrm{opt}}}{3}$ for
+$W_{\mathrm{opt}} := \pi - 3 y_{\mathrm{opt}}/2 - 1$.
 \end{theorem}
 
-\begin{remark}[No elementary simplification]
+\begin{proof}
+By \Cref{lem:zones}(1c), $\rho_3(1 + \theta) = (\theta - 1 - y)\cdot
+e(L)$ on Zone 1c. Writing $u := \theta - 1 - y = W - v$ (via $\theta =
+L - v$),
+\[
+c_3^2 \;=\; u^2 - 2u\langle e(L), e(\theta)\rangle + 1
+\;=\; (W-v)^2 - 2(W - v)\cos v + 1,
+\]
+using $\langle e(L), e(L - v)\rangle = \cos v$. Then
+\begin{equation}
+\label{eq:T3-param}
+T_3(y, L - v) \;=\; 1 + (L - v) + c_3,
+\end{equation}
+and $\tfrac{d}{d\theta}(\cdot) = -\tfrac{d}{dv}(\cdot)$, so the
+critical point condition $\tfrac{d}{d\theta} T_3 = 0$ becomes
+$\tfrac{d c_3}{d v} = 1$. Differentiating $c_3^2$ in $v$ gives
+\[
+2 c_3 \tfrac{d c_3}{d v}
+\;=\; -2(W-v) + 2\cos v + 2(W-v)\sin v
+\;=\; 2\bigl[\cos v - (W-v)(1 - \sin v)\bigr],
+\]
+so $\tfrac{d c_3}{dv} = 1$ is equivalent to
+\begin{equation}
+\label{eq:c3-crit}
+c_3 \;=\; \cos v - (W - v)(1 - \sin v).
+\end{equation}
+Squaring~\eqref{eq:c3-crit} and equating to the formula for $c_3^2$:
+\begin{align*}
+&(W-v)^2 (1 - \sin v)^2 - 2(W-v)(1 - \sin v)\cos v + \cos^2 v \\
+&\qquad = (W-v)^2 - 2(W-v)\cos v + 1,
+\end{align*}
+which simplifies (using $(1-\sin v)^2 - 1 = -2\sin v + \sin^2 v$ and
+$\cos^2 v - 1 = -\sin^2 v$) to
+\[
+-(W-v)^2 \sin v(2 - \sin v) + 2(W-v)\cos v \sin v - \sin^2 v \;=\; 0.
+\]
+Dividing by $-\sin v > 0$ yields~\eqref{eq:quadratic}.
+
+Solving~\eqref{eq:quadratic} as a quadratic in $W-v$:
+\[
+W - v \;=\; \frac{\cos v \pm \sqrt{\cos^2 v - (2-\sin v)\sin v}}{2 - \sin v}
+\;=\; \frac{\cos v \pm \sqrt{1 - 2\sin v}}{2 - \sin v},
+\]
+using $\cos^2 v - 2\sin v + \sin^2 v = 1 - 2\sin v$. For $v \in (0,
+\pi/6)$, $1 - 2\sin v > 0$ so the two roots are real and distinct. Only
+the $-$ branch satisfies $W - v \le W$: at $v \to 0^+$, the $-$ branch
+tends to $0$ while the $+$ branch tends to $\tfrac{1 + 1}{2} = 1 > W$
+(with $W \approx 0.32$ at $y_{\mathrm{opt}}$). This establishes~\eqref{eq:admissible}.
+
+Substituting~\eqref{eq:admissible} into~\eqref{eq:c3-crit}:
+\begin{align*}
+c_3
+&\;=\;\cos v - \tfrac{(\cos v - \sqrt{1-2\sin v})(1 - \sin v)}{2 - \sin v} \\
+&\;=\; \tfrac{\cos v(2 - \sin v) - (\cos v - \sqrt{1-2\sin v})(1 - \sin v)}{2 - \sin v} \\
+&\;=\; \tfrac{\cos v + (1 - \sin v)\sqrt{1 - 2\sin v}}{2 - \sin v},
+\end{align*}
+since $\cos v(2 - \sin v) - \cos v(1 - \sin v) = \cos v$. The balance
+$T_1(y) = T_3(y, L - v)$ reads
+\[
+1 + \tfrac{2\pi}{3} - \tfrac{y}{2} + \sqrt 3
+\;=\; 1 + L - v + c_3
+\;=\; 1 + \pi - \tfrac{y}{2} - v + c_3,
+\]
+equivalent to $c_3 = v + \sqrt 3 - \tfrac{\pi}{3}$. Equating the two
+expressions for $c_3$ gives~\eqref{eq:master}.
+
+\emph{Uniqueness of $v_{\mathrm{opt}} \in (0, \pi/6)$.}
+Let $f(v) := \tfrac{\cos v + (1 - \sin v)\sqrt{1 - 2\sin v}}{2 - \sin v}$
+and $g(v) := v + \sqrt 3 - \pi/3$. Clearly $g'(v) = 1 > 0$. A direct
+computation (carried out in \texttt{analysis/a3\_balance.wls} and
+verified at 30-digit precision) gives $f'(v) < 0$ for all $v \in
+(0, \pi/6)$. At $v = 0^+$, $f(0) = \tfrac{1 + 1\cdot 1}{2} = 1$ and
+$g(0) = \sqrt 3 - \pi/3 \approx 0.685$, so $f - g > 0$. At $v = \pi/6$,
+$1 - 2\sin v = 0$, so $f(\pi/6) = \tfrac{\cos(\pi/6)}{2 - 1/2} =
+\tfrac{\sqrt 3/2}{3/2} = \tfrac{\sqrt 3}{3} \approx 0.577$, while
+$g(\pi/6) \approx 0.685 + 0.524 \approx 1.209$, so $f - g < 0$. Since
+$f - g$ is continuous and strictly decreasing (sum of a decreasing
+function and $-g$), it has a unique zero in $(0, \pi/6)$.
+
+Finally, from $W = \pi - 3y/2 - 1$, one has $y = \tfrac{2}{3}(\pi - 1 -
+W)$; substituting $W = v + (W - v)$ with~\eqref{eq:admissible}
+gives~\eqref{eq:yopt}. And $T_1 = 1 + \tfrac{2\pi}{3} - \tfrac{y}{2} +
+\sqrt 3 = \tfrac{4}{3} + \tfrac{\pi}{3} + \sqrt 3 + \tfrac{W}{3}$ follows
+by direct algebra. This establishes~\eqref{eq:main}.
+\end{proof}
+
+\begin{remark}[On ``no elementary closed form'']
 \label{rem:pslq}
-A 40-digit PSLQ-style integer-relation search
-(\texttt{FindIntegerNullVector}) over the basis $\{1,\, \pi,\, \sqrt 3,\,
-\sqrt 2,\, \log 2,\, \log 3,\, \gamma\}$ finds no $\mathbb Z$-linear relation
-of $v_{\mathrm{opt}}$ or the improved $UB$ with norm below~20; a subsequent
-search proves no such relation of norm below~$15.2$ exists. We conclude
-that $v_{\mathrm{opt}}$ (and hence $y_{\mathrm{opt}}$) is genuinely
-transcendental in the usual sense: no rational-combination reduction to
-elementary constants exists within the search radius.
+An integer-relation search (PSLQ as implemented by Mathematica's
+\texttt{FindIntegerNullVector}) at $40$-digit precision, on the basis
+$\{1,\, \pi,\, \sqrt 3,\, \sqrt 2,\, \log 2,\, \log 3,\, \gamma\}$,
+finds no $\mathbb Z$-linear relation with $v_{\mathrm{opt}}$ whose
+coefficient vector has $\ell^\infty$-norm at most $20$; the algorithm
+certifies non-existence of such a relation of norm at most $\approx
+15.2$. The same holds for $T(y_{\mathrm{opt}})$. This rules out, for
+these specific atomic constants and norm thresholds, any closed-form
+expression of the form $\sum_j a_j b_j$ with integer coefficients
+$a_j$. We make no claim about transcendence of $v_{\mathrm{opt}}$ in the
+Liouville sense; we observe only the absence of a \emph{short}
+$\mathbb Z$-linear reduction over the standard atomic basis. See
+\texttt{analysis/a3\_balance.wls}.
 \end{remark}
 
 \begin{corollary}[High-precision numerical values]
 \label{cor:hp}
-To 40 digits,
+To $40$ decimal digits, \eqref{eq:master} and~\eqref{eq:yopt} yield
 \[
 \begin{aligned}
 v_{\mathrm{opt}} &= 0.20283\,77447\,40492\,87031\,05459\,53643\,95496\,52206,\\
 y_{\mathrm{opt}} &= 1.21585\,78321\,29242\,90943\,42098\,32081\,15330\,17778,\\
-UB              &= 4.21851\,69938\,97451\,33111\,87703\,47651\,63097\,21854.
+T(y_{\mathrm{opt}}) &= 4.21851\,69938\,97451\,33111\,87703\,47651\,63097\,21854.
 \end{aligned}
 \]
 \end{corollary}
 
-\section{Numerical Experiments}
+\section{Numerical verification}
 \label{sec:experiments}
 
-All results above are reproducible via \texttt{experiments/a3\_verify.py}
-(confirms the simulator matches the paper's UB to~10 decimal places),
-\texttt{experiments/a3\_optimize.py} (scalar search for $y_{\mathrm{opt}}$),
-\texttt{experiments/a3\_local\_search.py} (verifies no further gain from
-breaking the $L_1 = L_2$ or redeploy-angle symmetries), and
-\texttt{experiments/a3\_diagnose.py} (identifies the four binding
-worst-case angles at $y_{\mathrm{opt}}$).
+The proofs in~\Cref{sec:main} are closed-form modulo the single
+transcendental root $v_{\mathrm{opt}}$ of~\eqref{eq:master}, but several
+steps (non-existence of interior critical points on sub-intervals,
+sign verifications, uniqueness arguments) rely on numerical evaluation
+at specified precision. We accompany the paper with reproducible
+scripts that check each such step.
 
-\section{The Lower-Bound Side}
+\begin{itemize}
+\item \texttt{analysis/a3\_balance.wls} (Wolfram Language): solves
+\eqref{eq:master} numerically at 50-digit precision and verifies the
+monotonicity of both sides on $(0, \pi/6)$. Also performs the
+integer-relation search underlying \Cref{rem:pslq}.
+\item \texttt{analysis/a3\_zone\_proof.wls}: verifies the claims of
+\Cref{lem:zone-max} zone-by-zone at $y = y_{\mathrm{opt}}$, including
+the absence of interior critical points of $1 + \theta + c_3$ in the
+$c_3$-dominant subregion of Zone 1b.
+\item \texttt{experiments/wireless\_k3.py}, \texttt{experiments/a3\_verify.py}
+(Python): a general-purpose $k$-robot wireless evacuation simulator;
+\texttt{a3\_verify.py} confirms the simulator reproduces $T_{\mathrm{CGK}} =
+\frac{4\pi}{9} + \frac{2\sqrt 3 + 5}{3} + \frac{1}{600}$ at the
+Czyzowicz et al.\ parameter $y_{\mathrm{paper}}$ to $10$ decimal places,
+providing an independent check on the simulator's accuracy.
+\item \texttt{experiments/a3\_optimize.py}: scalar search for
+$y_{\mathrm{opt}}$ using \texttt{scipy.optimize.minimize\_scalar}; agrees
+with~\Cref{thm:transcendental} to $10$ digits.
+\item \texttt{experiments/a3\_local\_search.py}: Nelder--Mead over a
+full-dimensional neighbourhood of the $A_3(y_{\mathrm{opt}})$ parameter
+(allowing $L_1 \ne L_2$ and the redeploy angle to float off $\pi - y/2$).
+Converges back to the symmetric $A_3(y_{\mathrm{opt}})$, supporting the
+statement in~\Cref{thm:main} that relaxing the structural symmetries
+does not help.
+\item \texttt{experiments/a3\_diagnose.py}: identifies the four
+worst-case exit angles at $y_{\mathrm{opt}}$ on a 400,000-point grid,
+confirming the four simultaneous maxima predicted by~\Cref{thm:main}.
+\end{itemize}
+All scripts and a driver for rebuilding this document live in the
+repository at \url{https://github.com/jaredraycoleman/evacuation-claude}.
+
+\section{The lower-bound gap}
 \label{sec:lb}
 
-Czyzowicz et al.'s \Cref{czyzowicz2014} Theorem~7 states the lower bound
+\cite{czyzowicz2014}'s Theorem~7 establishes the lower bound
 \[
 T^*_{3,\mathrm{wireless}} \;\ge\; 1 + \tfrac{2}{3}\arccos\!\left(-\tfrac{1}{3}\right)
 + \tfrac{4\sqrt 2}{3} \;\approx\; 4.15937,
