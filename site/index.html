@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Three-Robot Wireless Evacuation on the Disk</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<main>
+  <section class="left">
+    <h1>Three-Robot Wireless Evacuation on the Disk</h1>
+
+    <p>Three unit-speed robots start at the centre of the unit disk; an
+    exit sits at an unknown boundary angle. Under the <em>wireless</em>
+    communication model, once any robot's trajectory visits the exit it
+    broadcasts instantly and every robot then walks a straight chord to
+    the exit. The worst-case evacuation time (over the placement of the
+    exit) is what we minimise.</p>
+
+    <p>Czyzowicz et al. (2014) gave an explicit algorithm
+    <em>A<sub>3</sub></em> for this problem with a worst-case bound of
+    <strong>4.2193</strong>. Their construction is parametrised by a
+    single deployment offset&nbsp;<em>y</em>. Treating&nbsp;<em>y</em>
+    as tunable and balancing <em>three</em> worst-case regimes rather
+    than two yields an improved bound of <strong>4.2185</strong> at
+    <em>y<sub>opt</sub>&nbsp;&approx;&nbsp;1.2159</em>. The report on
+    the right has full details.</p>
+
+    <h2>Interactive: the <em>A<sub>3</sub>(y)</em> algorithm</h2>
+    <p class="hint">Drag the sliders, or click on the boundary to move
+    the exit. The snapshot shows the three robots at the moment of
+    discovery (<em>t</em> = <em>t<sub>found</sub></em>); the dashed line
+    is the bottleneck robot's chord to the exit.</p>
+
+    <canvas id="viz" width="560" height="560"></canvas>
+
+    <div class="controls">
+      <label>
+        <span class="lbl">Deployment <em>y</em></span>
+        <input type="range" id="y-slider" min="0.6" max="1.8" step="0.0005" value="1.2159">
+        <span class="val" id="y-val">1.2159</span>
+      </label>
+      <label>
+        <span class="lbl">Exit angle <em>&theta;</em></span>
+        <input type="range" id="theta-slider" min="0" max="6.2832" step="0.001" value="1.486">
+        <span class="val" id="theta-val">1.486</span>
+      </label>
+      <div class="buttons">
+        <button id="jump-worst">Jump to worst-case &theta;</button>
+        <button id="reset-y">Reset y = y<sub>opt</sub></button>
+      </div>
+    </div>
+
+    <table class="readout">
+      <tr><td>Evac time at current &theta;</td>
+          <td><span id="evac-now">&mdash;</span></td></tr>
+      <tr><td>Worst-case evac time (over &theta;)</td>
+          <td><span id="evac-worst">&mdash;</span></td></tr>
+      <tr><td>Time of discovery <em>t<sub>found</sub></em></td>
+          <td><span id="t-found">&mdash;</span></td></tr>
+      <tr><td>Bottleneck robot</td>
+          <td><span id="bottleneck">&mdash;</span></td></tr>
+    </table>
+
+    <p class="smallnote">Legend:
+      <span class="dot" style="background:#2a9d8f"></span> r<sub>1</sub>,
+      <span class="dot" style="background:#e76f51"></span> r<sub>2</sub>,
+      <span class="dot" style="background:#264653"></span> r<sub>3</sub>,
+      <span class="dot star"></span> exit.
+      Pale lines show full trajectories; solid dots show robot positions
+      at <em>t<sub>found</sub></em>.</p>
+  </section>
+
+  <section class="right">
+    <h2>Report</h2>
+    <iframe class="pdf" src="report.pdf"
+            title="An Improved Upper Bound for Three-Robot Wireless
+                   Evacuation on the Disk"></iframe>
+    <p class="pdf-fallback">
+      If the PDF doesn't load inline,
+      <a href="report.pdf" target="_blank" rel="noopener">open it in a new tab</a>.
+    </p>
+  </section>
+</main>
+
+<script type="module" src="main.js"></script>
+</body>
+</html>

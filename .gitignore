@@ -14,6 +14,9 @@ paper/*.synctex.gz
 paper/*.fdb_latexmk
 paper/*.fls
 
+# Static site build artifacts
+site/report.pdf
+
 # Data / results caches
 experiments/cache/
 *.npz
