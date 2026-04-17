@@ -197,13 +197,32 @@ Zone-by-zone analysis in `analysis/a3_zone_proof.wls` verifies:
   (e.g., a multi-exit adversary) is genuine research and was not
   attempted this session.
 
+**Richer UB exploration this session (all negative):**
+- `experiments/family_c.py` — $r_3$ scans after redeploy ($L_b > 0$).
+  Local search from the A_3 optimum converges back to $L_b = 0$;
+  the 2nd scan at $t \ge 3 + y > 4.21$ is past worst-case evac, so it
+  can't contribute to coverage pre-evacuation.
+- `experiments/family_d.py` — 3-fold symmetric, all robots do return +
+  redeploy. Caps at 4.826 (naive bound). The asymmetry of A_3 is
+  structural: one "backup" robot at the long-arc midpoint is essential.
+- `experiments/family_e.py` — r_2 and r_3 both redeploy (r_1 simple).
+  All local searches from multiple seeds converge back to A_3's 4.21852.
+
+**Conclusion.** A_3's **4.21852** appears to be a strong local minimum
+across piecewise-linear + boundary-scan + chord trajectory families.
+Breaking it plausibly requires *curved* approaches (non-radial ingress)
+or *scanning-while-in-transit* generalizations — both substantial model
+extensions.
+
 **Open:**
-- Genuinely richer UB family (all three robots return-to-origin; $r_3$
-  scans after redeploy; curved approaches; asymmetric roles) to push UB
-  below 4.218.
+- Curved-approach family: each robot's approach is a C1 curve from origin
+  to some boundary point. Parametrise as cubic Bezier or logarithmic
+  spiral, optimize numerically. Potentially unlocks fundamentally
+  different behaviour.
 - Multi-exit adversary LB: three candidate exits mutually far apart
   should force at least one robot far from the eventual exit, giving a
   bottleneck-chord bound stronger than the finder-chord of Lemma 6.
+  (Same as before; not attempted this session.)
 
 ## Open problem candidates
 

@@ -369,16 +369,27 @@ the finder's. Verified via the Wolfram script
 \label{sec:next}
 
 \begin{itemize}
-\item \textbf{Richer algorithm class.} Retaining the $A_3$ skeleton
-caps improvements at the $\approx 1/1280$ reported here. Natural
-generalisations include: allowing $r_3$ to continue scanning after
-redeployment (a fourth phase, not used by $A_3$); letting all three
-robots perform a return-to-origin + redeploy (symmetric analogue);
-curved (non-radial) approaches; and asymmetric role assignments that
-break the $L_1 = L_2$ reflection symmetry. Preliminary numerical
-experiments (\texttt{experiments/a3\_local\_search.py}) show no gain
-from breaking the structural symmetries at fixed skeleton, so the next
-productive step is a genuinely larger family.
+\item \textbf{Richer algorithm class.} We numerically explored three
+natural enrichments and found none that beat \Cref{thm:main}:
+\begin{itemize}
+\item \textbf{Family C} (\texttt{experiments/family\_c.py}): $r_3$ also
+scans (with length $L_b > 0$) after redeployment. Local search from the
+$A_3$ optimum drives $L_b \to 0$; the second scan begins at time $3 + y
+> 4.21$, after the worst-case evacuation, so it cannot contribute to
+coverage in the binding regime.
+\item \textbf{Family D} (\texttt{experiments/family\_d.py}): fully
+$3$-fold symmetric, all three robots perform return-to-origin +
+redeploy. This caps at the naive bound $1 + 2\pi/3 + \sqrt 3 \approx
+4.826$. The asymmetry of $A_3$ — a \emph{single} robot acting as
+"backup" at the long-arc midpoint — is structural, not cosmetic.
+\item \textbf{Family E} (\texttt{experiments/family\_e.py}): both $r_2$
+and $r_3$ redeploy while $r_1$ remains simple. All local searches
+return to the $A_3$ optimum.
+\end{itemize}
+We conjecture that $4.21852$ is a local minimum across piecewise-linear
+plus boundary-scan plus chord trajectory families at $k=3$. Breaking
+through likely requires \emph{curved} (non-radial) approaches, which
+would admit a larger design space at the cost of harder analysis.
 \item \textbf{Lower bound.} As noted in \Cref{rem:lb-slack}, tightening
 Czyzowicz et al.'s LB reduces to arguing that the bottleneck chord (not
 the finder's) is bounded below. A promising route is a multi-exit
