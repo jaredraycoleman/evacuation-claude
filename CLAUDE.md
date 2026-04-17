@@ -76,7 +76,44 @@ paper/          LaTeX write-up; build with paper/build.sh
 
 ## Currently working on
 
-*(none yet — pick one from the candidate list below on the next session)*
+**3-robot wireless evacuation on the disk — close the $O(k^{-4/3})$ gap at $k=3$.**
+Czyzowicz et al. give UB $3 + \pi/k + O(k^{-4/3})$ and matching-form LB $3 + \pi/k$;
+at $k=3$ the LB is $3 + \pi/3 \approx 4.0472$ and the UB carries a small additive
+slack from a generic-$k$ construction that is unlikely to be tight for a specific
+small $k$. We picked this because (a) the wireless model has a simple simulator
+— once any robot finds the exit, all robots head straight for it, so evaluating
+a candidate trajectory is 1D optimization over the exit angle; (b) the gap is
+concrete and small, so a tailored 3-robot deployment pattern has a realistic
+shot at closing or shrinking it; (c) the tooling (parametrized trajectory +
+worst-exit evaluator + global optimizer) is reusable for the 2-robot F2F UB
+problem and the priority-evacuation small-$n$ cases later. Deliverable target:
+either a closed-form improved UB matching $3 + \pi/3$, or a numerical UB below
+the Czyzowicz et al. bound with a cleanly-parametrized trajectory.
+
+**Progress so far:**
+- Env green: `wolframscript`, `pdflatex`, `uv sync`, `paper/build.sh` all work.
+- `experiments/wireless_k3.py` is a generic wireless-$k$ simulator: pass $k$
+  trajectories $r_i: [0,T] \to \mathbb{R}^2$ (unit-speed, start at origin), get
+  worst-case evac time over exit angle $\theta$.
+- Baseline verified: naive arc-partition at $k=3$ gives worst-case $\approx 4.8231$
+  (analytical $1 + 2\pi/3 + \sqrt{3} \approx 4.8264$; diff is grid tolerance).
+  Worst exit at $\theta \approx 2\pi/3$ (end of robot 0's arc); bottleneck is
+  the robot diametrically opposite at chord distance $\sqrt{3}$.
+
+**Next action:** Parametrize a richer trajectory family and numerically
+optimize. Candidate ideas (in order of complexity):
+  1. **Staggered arc-partition** — robots scan overlapping arcs, so at any
+     moment of discovery the non-discovering robots are already partway
+     through their own approach.
+  2. **Chord-shortcut on discovery** — the generic algorithm assumes robots
+     are still scanning when any broadcast arrives; tune arc lengths so the
+     bottleneck chord is balanced against scan time.
+  3. **Non-radial deployment** — approach boundary along a curve that keeps
+     robots closer to the likely exit region, trading deployment time for
+     smaller worst-case chord.
+First concrete task: build a parametrized family (arc midpoint angles +
+arc lengths) and run a Nelder-Mead / differential-evolution search against
+the worst-case evaluator.
 
 ## Open problem candidates
 
