@@ -1,0 +1,4 @@
+# Files in site/ that wrangler should NOT upload as public static assets.
+# Same syntax as .gitignore.
+build.sh
+.assetsignore
