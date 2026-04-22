@@ -24,7 +24,7 @@
 \theoremstyle{remark}
 \newtheorem{remark}[theorem]{Remark}
 
-\title{An Improved Upper Bound for Three-Robot Wireless Evacuation on the Disk}
+\title{Notes on Small Open Problems in Robot Evacuation from the Disk}
 \author{}
 \date{\today}
 
@@ -32,23 +32,37 @@
 \maketitle
 
 \begin{abstract}
-We study the wireless three-robot evacuation problem on the unit disk
-and prove an upper bound of
-$1 + \frac{2\pi}{3} - \frac{y_{\mathrm{opt}}}{2} + \sqrt{3} \approx 4.2185170$
-on the worst-case evacuation time, where $y_{\mathrm{opt}}$ is the unique
-solution in $(0, \pi/6)$ of a transcendental master equation derived
-below. This improves the best known upper bound of Czyzowicz et
-al.~\cite{czyzowicz2014} ($\approx 4.2192973$) by approximately
+We take up two open problems in the unit-disk robot evacuation
+literature and give partial closures for each.
+
+\emph{Three-robot wireless evacuation.} We prove an improved upper
+bound of $1 + \tfrac{2\pi}{3} - \tfrac{y_{\mathrm{opt}}}{2} + \sqrt 3
+\approx 4.21851\,70$, where $y_{\mathrm{opt}}$ is the unique root in
+$(0, \pi/6)$ of a transcendental master equation derived below. This
+improves the best known upper bound of Czyzowicz et
+al.~\cite{czyzowicz2014} ($\approx 4.21929\,73$) by approximately
 $0.00078 \approx 1/1280$, and leaves a gap of about $0.06$ against the
 best known lower bound of the same paper. The improvement is obtained
 by retaining the structural skeleton of the $A_3$ algorithm
-of~\cite{czyzowicz2014} and rebalancing a single deployment parameter $y$
-so that \emph{four} symmetric worst-case exit angles bind simultaneously,
-rather than the two balanced by Czyzowicz et al. Rigour is provided by
-an analytic zone-by-zone enumeration of the evacuation time's
-worst-case regimes; a 40-digit integer-relation search (PSLQ) over the
-usual atomic constants rules out elementary closed-form reductions of
-$y_{\mathrm{opt}}$ below a specified norm radius.
+of~\cite{czyzowicz2014} and rebalancing a single deployment parameter
+$y$ so that \emph{four} symmetric worst-case exit angles bind
+simultaneously, rather than the two balanced by Czyzowicz et al. Rigour
+is provided by an analytic zone-by-zone enumeration of the evacuation
+time's worst-case regimes; a 40-digit integer-relation search (PSLQ)
+over the usual atomic constants rules out elementary closed-form
+reductions of $y_{\mathrm{opt}}$ below a specified norm radius.
+
+\emph{Priority evacuation with a single servant ($n = 1$).} The main
+theorem of~\cite{czyzowicz2018priority} requires $n \ge 4$ and defers
+small-$n$ cases. We give the simple but (to our knowledge) previously
+unstated bracket
+\[
+1 + \pi \;\le\; T^*_{\mathrm{prio}, 1, \mathrm{wl}} \;\le\; 1 + \tfrac{2\pi}{3} + \sqrt 3,
+\]
+i.e.\ approximately $4.1416 \le T^* \le 4.8264$, with a gap of
+$\approx 0.685$. The upper bound is a reduction to two-robot wireless;
+the lower bound adapts the Lemma~5 / Lemma~6 adversary from
+\cite{czyzowicz2014} using a half-chord argument.
 \end{abstract}
 
 \section{Introduction}
@@ -846,6 +860,115 @@ three candidates are forced to be mutually far, then by pigeonhole some
 robot is far from the actual exit regardless of how the algorithm has
 positioned its robots. Formalising this for $k=3$ is open.
 \end{itemize}
+
+\section{A bracket for priority evacuation with a single servant}
+\label{sec:priority-n1}
+
+Priority evacuation introduced in~\cite{czyzowicz2018priority} differs
+from the basic evacuation problem in two ways: (i) the $n+1$ unit-speed
+robots start at the centre consist of a distinguished \emph{queen} $Q$
+and $n$ indistinguishable \emph{servants} $S_1, \ldots, S_n$; (ii) the
+objective is to minimise the worst-case arrival time of \emph{the
+queen} at the unknown boundary exit, rather than the worst-case arrival
+of all robots. Communication is wireless: once any robot visits the
+exit, every robot switches to a straight-line chord to the exit point.
+
+Write $T^*_{\mathrm{prio}, n, \mathrm{wl}}$ for the infimum of
+queen worst-case evacuation time. The headline theorem
+of~\cite{czyzowicz2018priority} (their Theorem~1) gives
+$T^*_{\mathrm{prio}, n, \mathrm{wl}} \le 2 + 4(\sqrt 2 - 1)\pi/n$ and
+requires $n \ge 4$; their remark on page 3 explicitly defers the cases
+$n \in \{1, 2, 3\}$. The $n = 1$ case, with its two-robot state space,
+is a natural first target; we give a simple two-sided bracket.
+
+\begin{theorem}[Priority $n=1$ bracket]
+\label{thm:prio-n1}
+\[
+1 + \pi \;\le\; T^*_{\mathrm{prio}, 1, \mathrm{wl}} \;\le\; 1 + \tfrac{2\pi}{3} + \sqrt 3.
+\]
+Numerically, $4.1416 \le T^*_{\mathrm{prio}, 1, \mathrm{wl}} \le 4.8264$,
+with a gap of $\approx 0.685$.
+\end{theorem}
+
+\begin{proof}[Proof of upper bound]
+Run the optimal two-robot wireless algorithm of~\cite{czyzowicz2014}:
+both robots walk radially to $e(0)$ (time~$1$), after which robot $\rho_1$
+scans the boundary counter-clockwise and $\rho_2$ clockwise, each at
+unit speed. For any exit angle $\theta$:
+\begin{itemize}
+\item If $\theta \in [0, \pi]$, $\rho_1$ reaches the exit at time
+$1 + \theta$ (found by $\rho_1$); if $\theta \in [\pi, 2\pi]$,
+$\rho_2$ reaches it at time $1 + (2\pi - \theta)$ (found by $\rho_2$).
+\end{itemize}
+Designate $\rho_1$ as the queen. For $\theta \in [0, \pi]$, the queen
+is the finder (chord $0$), so $T_Q(\theta) = 1 + \theta \le 1 + \pi$.
+For $\theta \in [\pi, 2\pi]$, the finder is $\rho_2$; the queen is
+still scanning CCW, at angle $1 + (2\pi - \theta) - 1 = 2\pi - \theta$,
+with chord to the exit $2\sin\bigl((2\theta - 2\pi)/2\bigr) = 2\sin(\theta - \pi)$.
+Thus
+\[
+T_Q(\theta) = 1 + (2\pi - \theta) + 2\sin(\theta - \pi),
+\qquad \theta \in [\pi, 2\pi].
+\]
+Differentiating, $T_Q'(\theta) = -1 + 2\cos(\theta - \pi)$, which
+vanishes at $\theta - \pi = \pi/3$, i.e., $\theta = 4\pi/3$, where
+$T_Q = 1 + 2\pi/3 + \sqrt 3$. This is the global maximum. Hence
+$T^*_{\mathrm{prio}, 1, \mathrm{wl}} \le 1 + 2\pi/3 + \sqrt 3$.
+\end{proof}
+
+\begin{proof}[Proof of lower bound]
+Fix any two-robot wireless priority algorithm and any $x \in
+[\pi/2,\, \pi)$. At time $1 + x$, each of $Q$ and $S$ has spent at most
+$x$ time units on the boundary (after the $\ge 1$-unit approach
+phase), so the total boundary arc visited by time $1+x$ is at most
+$2x$. The unexplored set $U \subseteq [0, 2\pi)$ therefore has measure
+$|U| \ge 2\pi - 2x$. Since $2\pi - 2x \le \pi$, Lemma~5
+of~\cite{czyzowicz2014} yields two unexplored points $P_1, P_2 \in U$
+at shorter-arc distance $\ge u := 2\pi - 2x$; their Euclidean chord is
+$|P_1 - P_2| = 2\sin(u/2)$.
+
+The adversary's strategy is to commit, at time $0$, to exit $\theta^*
+\in \{P_1, P_2\}$ maximising the queen's worst-case time (each adversary
+choice is a fixed algorithm instance, and the adversary picks the worse
+one). Since $P_1, P_2$ are both unexplored at time $1+x$, we have
+$t_{\mathrm{find}}(\theta^*) \ge 1 + x$ for either choice. Let $p$
+denote the queen's position at $t_{\mathrm{find}}(\theta^*)$. By the
+triangle inequality,
+\[
+|p - P_1| + |p - P_2| \;\ge\; |P_1 - P_2| \;=\; 2\sin(u/2),
+\]
+so
+\[
+\max\bigl(|p - P_1|,\, |p - P_2|\bigr) \;\ge\; \sin(u/2).
+\]
+The adversary's optimal choice forces the queen's chord to the exit to
+be at least this maximum, giving
+\[
+T_Q(\theta^*) \;\ge\; (1 + x) + \sin(u/2) \;=\; 1 + x + \sin(\pi - x)
+\;=\; 1 + x + \sin(x).
+\]
+Since this holds for every $x \in [\pi/2, \pi)$,
+\[
+T^*_{\mathrm{prio}, 1, \mathrm{wl}}
+\;\ge\; \sup_{x \in [\pi/2, \pi)} \bigl(1 + x + \sin(x)\bigr)
+\;=\; \lim_{x \to \pi^{-}} \bigl(1 + x + \sin(x)\bigr)
+\;=\; 1 + \pi.
+\]
+The limit is attained because $1 + x + \sin x$ is continuous on $[\pi/2,
+\pi]$ and equal to $1+\pi$ at $x = \pi$.
+\end{proof}
+
+\begin{remark}[Where the gap lives]
+The upper-bound algorithm achieves $1 + 2\pi/3 + \sqrt 3$ because the
+worst-case exit $\theta = 4\pi/3$ forces the queen to chord across the
+long arc at distance $\sqrt 3$. The lower-bound argument only guarantees
+a chord of $\sin(u/2)$, not the full $2\sin(u/2)$ of Lemma~6
+in~\cite{czyzowicz2014}, because for priority we cannot require the
+queen to be the finder (she may be anywhere). A tighter lower bound
+likely follows from a multi-exit adversary combined with a pigeonhole
+argument on the queen's position --- the same direction identified as
+open for Section~5.
+\end{remark}
 
 \bibliographystyle{plain}
 \bibliography{refs}

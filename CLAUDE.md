@@ -98,6 +98,18 @@ site/           static website (vanilla HTML/CSS/JS) deployed to Cloudflare
   (non-elementary roots, high-precision `FindRoot`, etc.) so it can be
   revisited.
 
+## Results to date
+
+**Problem 1 (wireless k=3).** Proved UB $\approx 4.21852$ via rebalanced
+$A_3$, improving Czyzowicz et al.~by $\approx 1/1280$. Full zone proof
+in paper.
+
+**Problem 2 (priority n=1 wireless).** Proved bracket $1+\pi \le
+T^* \le 1 + 2\pi/3 + \sqrt 3$, i.e., $4.1416 \le T^* \le 4.8264$, gap
+$\approx 0.685$. UB via 2-robot-wireless reduction; LB via Lemma 5
+half-chord adversary. The specific $n=1$ case is explicitly
+unaddressed in~\cite{czyzowicz2018priority}.
+
 ## Currently working on
 
 **3-robot wireless evacuation on the disk — close the $O(k^{-4/3})$ gap at $k=3$.**
