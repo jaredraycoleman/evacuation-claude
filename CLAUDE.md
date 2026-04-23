@@ -112,129 +112,88 @@ unaddressed in~\cite{czyzowicz2018priority}.
 
 ## Currently working on
 
-**3-robot wireless evacuation on the disk — close the $O(k^{-4/3})$ gap at $k=3$.**
-Czyzowicz et al. give UB $3 + \pi/k + O(k^{-4/3})$ and matching-form LB $3 + \pi/k$;
-at $k=3$ the LB is $3 + \pi/3 \approx 4.0472$ and the UB carries a small additive
-slack from a generic-$k$ construction that is unlikely to be tight for a specific
-small $k$. We picked this because (a) the wireless model has a simple simulator
-— once any robot finds the exit, all robots head straight for it, so evaluating
-a candidate trajectory is 1D optimization over the exit angle; (b) the gap is
-concrete and small, so a tailored 3-robot deployment pattern has a realistic
-shot at closing or shrinking it; (c) the tooling (parametrized trajectory +
-worst-exit evaluator + global optimizer) is reusable for the 2-robot F2F UB
-problem and the priority-evacuation small-$n$ cases later. Deliverable target:
-either a closed-form improved UB matching $3 + \pi/3$, or a numerical UB below
-the Czyzowicz et al. bound with a cleanly-parametrized trajectory.
+**3-robot wireless evacuation, $k=3$ — tighten the lower bound.**
+With the UB side closed as much as the piecewise-linear class allows (Problem 1,
+4.21852 proved rigorously), the remaining gap $\approx 0.06$ is entirely on the
+LB side. CGK+14's Theorem 7 gives $4.15937$; our UB is $4.21852$. Goal: prove
+an LB strictly bigger than $4.15937$, ideally closing or measurably shrinking
+the gap.
 
-**Progress so far:**
-- Env green: `wolframscript`, `pdflatex`, `uv sync`, `paper/build.sh` all work.
-- `experiments/wireless_k3.py`: generic wireless-$k$ simulator (unit-speed
-  trajectories in, worst-case evac time out).
-- Baseline: naive arc-partition at $k=3$ gives $1 + 2\pi/3 + \sqrt{3} \approx 4.826$.
-- `experiments/wireless_k3_opt.py`: differential-evolution search over
-  Family A = {radial approach + single CCW/CW scan + wait at origin}.
-  Converges to 4.826 — no improvement. Family A is not rich enough.
+**Why this is tractable as the next step.** The slack in CGK's argument is
+localized (see *Dead ends / Negative results* for the analysis): their Lemma 6
+bounds the finder's chord at $2\sin(xk/2) \approx 1.886$ at their optimal
+$x \approx 1.274$. In our UB algorithm at its worst-case $\theta \approx 1.486$,
+the *bottleneck* (not the finder) has chord $\sqrt 3 \approx 1.732$ — larger
+than what Lemma 5 guarantees at the corresponding $x$. If we can lift the
+argument from "finder chord" to "bottleneck chord" universally, the LB should
+improve in the $x \approx 1.4$–$1.5$ region, where CGK's bound is already
+weakening as it chases one decreasing sine.
 
-**Key correction from reading `papers/ev-disc-k-robots.pdf` (Czyzowicz et al.):**
-- Asymptotic UB $3 + \pi/k + O(k^{-4/3})$ (Theorem 10) only applies for $k \ge 100$.
-- For $k=3$ they have a *separate* algorithm A3 (Theorem 6) with
-  UB $= \frac{4\pi}{9} + \frac{2\sqrt{3}+5}{3} + \frac{1}{600} \approx 4.2193$
-  and matching LB $\approx 4.159$ (Theorem 7). **Gap $\approx 0.06$.**
-- A3 uses a "return-to-center + redeploy" move ($r_3$ scans for time $y$,
-  walks back to origin, walks out again at angle $\pi - y/2$). This move is
-  not in Family A — explains why numerical search stalled at 4.826.
+**Lines of attack:**
+1. *Two-point adversary with nearest-robot distance.* The first-visit time to
+   either of two candidate exits is $\ge 1 + x + \min_i \|\rho_i(1+x) - \{p,q\}\|$.
+   If we can LB the nearest-robot distance away from zero (adversary chooses
+   $p,q$ interior to the unexplored arc, not at its edges), we tighten
+   $t_{\text{find}}$.
+2. *Multi-exit adversary.* Keep three candidate exits mutually far apart;
+   force some robot to be far from whichever one the adversary eventually
+   commits to.
+3. *Bottleneck-chord lemma.* Strengthen Lemma 6 to argue that after the
+   finder reaches one point, a second robot (that was near the sister
+   candidate) must have chord $\ge 2\sin(xk/2)$ to the exit at discovery
+   time — not via a new quantity, but by identifying which robot is the
+   bottleneck.
 
-**Revised target:** beat 4.2193 at $k=3$ with a proved bound. The `1/600`
-term in their UB is a hand-tuned slop, strongly suggesting it can be
-tightened with careful parameter optimization.
+**Tooling plan.** Extend `analysis/czyzowicz_lb.wls` to a generic framework
+`analysis/lb_bottleneck.wls` that: parametrizes 2/3-exit adversaries, encodes
+the algorithm-side invariants (scan-budget, chord-mover budget), and evaluates
+the LB symbolically. If a proof is elusive, do a numerical minimax — over
+algorithm-side parameters — to see what the best achievable LB looks like;
+that indicates the ceiling, even if the proof isn't yet clean.
 
-**Family B attempted (`experiments/wireless_k3_opt2.py`):** Robot 2 gets a
-two-phase trajectory (approach + scan + return-to-origin + approach +
-scan). Result: blind DE search still converges to $\approx 4.826$ across
-all 8 discrete sign combos. Diagnosis: when robot 2's first scan
-$L_{2a}$ is large, its second phase doesn't start until after $t_{\text{found}}$,
-so the new move is effectively inactive; the optimizer finds a Family-A
-local minimum and stays there. Blind global search in this space is
-wasteful — the good region is a narrow manifold (small $L_{2a}$, robot 2
-acts as a "positioner" not a scanner) that DE with Sobol init misses.
+**Progress so far (this problem):**
 
-**Result (numerical):** Within the A3 structural family, the paper's UB
-4.21930 is not tight; by tuning $y$ to balance the worst-case regimes,
-we achieve $T(y_{\mathrm{opt}}) \approx 4.21852$, an improvement of
-$\approx 0.00078$. See Thm 1 in `paper/main.tex`.
+**New universal inequality (derived + numerically validated).** For any
+3-robot wireless algorithm, any $x > 0$, any $p$ unexplored at time $1+x$:
+$$\text{evac}(p) \ge (1+x) + \max_j \|R_j(1+x) - p\|.$$
+Triangle-inequality proof is clean; see `notes/lb-refinement.md`.
 
-Key facts at $y_{\mathrm{opt}} \approx 1.215858$:
-- Four simultaneous worst-case exit angles: $\{1.486, 3.581\}$ (r_1/r_2
-  bottleneck, chord $= \sqrt{3}$) and $\{2.331, 2.737\}$ (r_3
-  mid-redeploy, chord $\approx 0.888$). All give evac $= 4.218517$.
-- Case 2 ($\theta = \pi - y/2$, evac $= 3 + y$) is slack at 4.2159.
-- Relaxing $L_1 = L_2$ and the redeploy angle $b = \pi - y/2$ gives no
-  further gain (local search returns to these settings).
+**On $A_3(y_{\text{opt}})$ the refined inequality is nearly tight.**
+Applied to the UB algorithm directly
+(`experiments/lb_refined_a3.py`): $\sup_{x,p} [(1+x) + \max_j] = 4.21836$
+at $x \approx 1.5$, within $0.0002$ of the actual UB $4.21852$. The
+inequality therefore captures almost all of the slack in $A_3$'s own
+worst case — encouraging sign that this is "the right object."
 
-**Transcendental characterization (Theorem 2 in paper):**
-$v_{\mathrm{opt}} \in (0, \pi/6)$ is the unique solution of
-\[
-\frac{\cos v + (1-\sin v)\sqrt{1-2\sin v}}{2 - \sin v} = v + \sqrt{3} -
-\tfrac{\pi}{3},
-\]
-and $y_{\mathrm{opt}}$, $UB$ are determined by $v_{\mathrm{opt}}$ explicitly.
-The Wolfram script at `analysis/a3_balance.wls` computes them to 40 digits.
+**Refined alone is not universally stronger than CGK**
+(`experiments/lb_minimax.py`). Raw min over algorithm states of
+$\sup_{x,p}$ = 3.95 at $x = 1.95$, achieved by "all robots at origin"
+states. These states are degenerate (alg never evacuates), but they
+defeat the refined bound in isolation.
 
-**No elementary closed form (Remark 1 in paper):** PSLQ over
-$\{1, \pi, \sqrt{3}, \sqrt{2}, \log 2, \log 3, \gamma\}$ proves no integer
-relation of norm $\le 15.2$ exists for $v_{\mathrm{opt}}$ or $UB$. The
-transcendental equation *is* the closed form.
+**Combined bound $\max(\text{state-tight CGK}, \text{refined})$ looks
+promising** (`experiments/lb_combined.py`). For any alg state at
+$x^* = 1.274$ (CGK's optimum):
+- If $|E(2.274)| < 3x^*$: state-tight CGK is $> 4.159$ by itself.
+- If $|E| = 3x^*$ exactly (CGK's universal bound tight): all 3 robots
+  are on the boundary, and numerically min refined chord over that
+  class is $\ge 1.898$, giving refined LB $\ge 4.172 > 4.159$.
 
-**Theorem 1 is now rigorous (`paper/main.tex`, proved via Lemma 2).**
-Zone-by-zone analysis in `analysis/a3_zone_proof.wls` verifies:
-- Zone 1a ($\theta \in [0, y]$): max $\approx 4.152 < T_1$. Proved via
-  monotonicity of $1 + \theta + 2\sin(\pi - y/2 - \theta)$.
-- Zone 1b ($\theta \in [y, 1+y]$): interior critical of $c_2$ branch at
-  $\theta = 2\pi/3 - y/2$ gives $T_1$; $c_3$ branch has no interior
-  critical, boundary value $3 + y < T_1$.
-- Zone 1c ($\theta \in [1+y, \pi-y/2]$): interior critical gives $T_1$
-  exactly ($T_1 = T_3$ balance); boundaries give $3 + y$.
-- Zone 3 ($\theta \in [2\pi-y, 2\pi]$): max $= 1 + y + 2\sin y \approx
-  4.091 < T_1$.
-- Zone 2: reflection of Zone 1.
+So the two cases together rule out a universal LB of exactly $4.159$.
+The boundary case (mixing small $|E| < 3x$ with small refined) needs
+more care: the combined LB there depends on how fast min-refined
+decreases as $|E|$ drops below $3x$. Numerical slope suggests a
+$0.01$ improvement is defensible, not $0.06$.
 
-**LB work this session (partial):**
-- Verified Czyzowicz et al.'s LB value symbolically: $1 + \tfrac{2}{3}\arccos(-\tfrac{1}{3}) + \tfrac{4\sqrt 2}{3} \approx 4.15937$ via `analysis/czyzowicz_lb.wls`.
-- Identified the slack: their argument lower-bounds the **finder's**
-  chord at $2\sin(xk/2)$, but in $A_3$ the finder has chord 0 and the
-  bottleneck is a different robot with chord $\sqrt{3} > 2\sin(xk/2)$
-  at our worst-case $x$. Tightening the LB requires an argument on the
-  **bottleneck** chord, which doesn't follow from Lemma 5 alone.
-- Drafted this as a Remark in `paper/main.tex`; a rigorous refinement
-  (e.g., a multi-exit adversary) is genuine research and was not
-  attempted this session.
+**Blocking gap.** A clean rigorous LB improvement requires proving:
+\emph{for any 3 robots on $\partial D$ with $|E| = 3x$ (3 disjoint
+scan arcs of length $x$ each ending at robot positions),
+$\max_{p \in E^c} \max_j \|R_j - p\| \ge 2\cos(x/4)$}, achieved by
+the 3-fold symmetric arrangement. This appears true from two explicit
+cases (3-fold symmetric and single-arc), but no proof yet.
 
-**Richer UB exploration this session (all negative):**
-- `experiments/family_c.py` — $r_3$ scans after redeploy ($L_b > 0$).
-  Local search from the A_3 optimum converges back to $L_b = 0$;
-  the 2nd scan at $t \ge 3 + y > 4.21$ is past worst-case evac, so it
-  can't contribute to coverage pre-evacuation.
-- `experiments/family_d.py` — 3-fold symmetric, all robots do return +
-  redeploy. Caps at 4.826 (naive bound). The asymmetry of A_3 is
-  structural: one "backup" robot at the long-arc midpoint is essential.
-- `experiments/family_e.py` — r_2 and r_3 both redeploy (r_1 simple).
-  All local searches from multiple seeds converge back to A_3's 4.21852.
-
-**Conclusion.** A_3's **4.21852** appears to be a strong local minimum
-across piecewise-linear + boundary-scan + chord trajectory families.
-Breaking it plausibly requires *curved* approaches (non-radial ingress)
-or *scanning-while-in-transit* generalizations — both substantial model
-extensions.
-
-**Open:**
-- Curved-approach family: each robot's approach is a C1 curve from origin
-  to some boundary point. Parametrise as cubic Bezier or logarithmic
-  spiral, optimize numerically. Potentially unlocks fundamentally
-  different behaviour.
-- Multi-exit adversary LB: three candidate exits mutually far apart
-  should force at least one robot far from the eventual exit, giving a
-  bottleneck-chord bound stronger than the finder-chord of Lemma 6.
-  (Same as before; not attempted this session.)
+Even that would only give $\approx 0.013$ improvement at $x_{CGK}^*$.
+Closing the full $0.06$ gap is substantially harder.
 
 ## Open problem candidates
 
@@ -265,20 +224,44 @@ as we learn more.
 
 ## Results
 
-*(populated as theorems / numerical bounds land)*
+**Problem 1 (k=3 wireless UB) — partially closed.** $T^*_{3,\text{wireless}} \le 4.21852$,
+improving CGK+14's 4.21930 by $\approx 1/1280$. Rigorous zone-decomposition proof +
+transcendental characterisation of $y_{\text{opt}}$. Tooling: `experiments/a3_*.py`,
+`analysis/a3_*.wls`, Theorem 1–3 in `paper/main.tex`.
+
+Under the piecewise-linear + boundary-scan + chord trajectory class, this appears
+to be a local minimum: families C/D/E/F (see `experiments/family_*.py`) all
+return to the $A_3(y_{\text{opt}})$ point under local search. Further UB
+improvement would require curved (non-radial) ingress — open.
 
 ## Dead ends
 
-*(avoid re-walking these — record the approach tried and why it failed)*
+**UB Family A** (`experiments/wireless_k3_opt.py`): single CCW/CW scan + wait at
+origin. Stalls at naive $1 + 2\pi/3 + \sqrt 3 \approx 4.826$. Misses $A_3$'s
+return-and-redeploy move.
+
+**UB Family B** (`experiments/wireless_k3_opt2.py`): two-phase scan for robot 2.
+DE search stalls at 4.826 across all 8 sign combos — the good region is a
+narrow manifold DE doesn't find from Sobol init.
+
+**UB Families C/D/E/F** (`experiments/family_*.py`): richer trajectory classes
+(extra scan after redeploy, 3-fold symmetric redeploy, dual redeploy, direct
+chord). All return to the $A_3(y_{\text{opt}})$ point under local search.
+
+**Brandt F2F $\varepsilon$-cut** (`experiments/brandt_f2f.py`): probe of a small
+off-path cut $(d_2, y_2)$ added to Brandt et al.'s symmetric 2-cut algorithm
+$A(y, \alpha, d)$. At the Brandt optimum $d_2 = 0$ is a local minimum —
+the symmetric 2-cut family is locally tight.
 
 ## Next steps
 
-- Pick one candidate from the list above and move it into *Currently working
-  on*.
-- Set up `uv sync` on first run and confirm `paper/build.sh` produces
-  `paper/main.pdf`.
-- If `wolframscript` is needed for the chosen problem, ask the user to
-  install it (or confirm Sympy-only is fine).
+- Encode CGK's Lemma 5/6 carefully in Wolfram, identifying each inequality
+  in the proof chain so we can see exactly where to tighten.
+- Attempt the two-point adversary with a nearest-robot-distance term; check
+  numerically whether any $x$-region has improved LB beyond 4.15937.
+- If numerical minimax over "algorithms" (parameterised by scan-budget
+  distribution at time $1+x$) shows the true LB is $\le 4.16$, this is
+  a dead end; otherwise formalise what the numerics suggest.
 
 ## Conventions
 
