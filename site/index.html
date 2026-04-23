@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Three-Robot Wireless Evacuation on the Disk</title>
+<title>evacuation-claude &mdash; LLM-assisted evacuation research</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="stylesheet" href="styles.css">
 </head>
@@ -10,7 +10,7 @@
 <header class="topbar">
   <div class="brand">
     <span class="brand-main">evacuation-claude</span>
-    <span class="brand-sub">3-robot wireless evacuation on the disk</span>
+    <span class="brand-sub">LLM-assisted exploration of open problems in robot evacuation</span>
   </div>
   <nav class="topnav">
     <span class="meta">
@@ -25,25 +25,87 @@
 
 <main>
   <section class="left">
-    <h1>Three-Robot Wireless Evacuation on the Disk</h1>
+    <h1>Can an LLM close open problems in robot evacuation?</h1>
 
-    <p>Three unit-speed robots start at the centre of the unit disk; an
-    exit sits at an unknown boundary angle. Under the <em>wireless</em>
-    communication model, once any robot's trajectory visits the exit it
-    broadcasts instantly and every robot then walks a straight chord to
-    the exit. The worst-case evacuation time (over the placement of the
-    exit) is what we minimise.</p>
+    <p>This project uses Anthropic's <strong>Claude</strong> as a
+    sustained research collaborator, pointed at four reference papers
+    on robot evacuation from the disk. In each paper a team of
+    unit-speed robots starts at the centre of a unit disk and tries to
+    reach an adversarially-placed boundary exit as quickly as possible;
+    variants differ in the number of robots, the communication model,
+    and the objective. Each paper leaves explicit gaps &mdash; looser
+    bounds, unaddressed small cases, unknown exact constants. We drove
+    the LLM through them one by one: read, pick a tractable gap, build
+    tooling, push until it closes, splits, or reveals a barrier.</p>
+
+    <h2>Status</h2>
+
+    <table class="status">
+      <thead>
+        <tr><th>Problem</th><th>Prior</th><th>Our result</th><th>Outcome</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>3-robot wireless, <em>k</em>&nbsp;=&nbsp;3, UB
+              <span class="src">CGK+14 Thm&nbsp;6</span></td>
+          <td>4.21930</td>
+          <td><strong>4.21852</strong></td>
+          <td><span class="tag good">tightened</span>
+              Rigorous zone-decomposition proof + transcendental
+              characterisation of <em>y<sub>opt</sub></em>. Flagship
+              result; see report.</td>
+        </tr>
+        <tr>
+          <td>3-robot wireless, <em>k</em>&nbsp;=&nbsp;3, LB
+              <span class="src">CGK+14 Thm&nbsp;7</span></td>
+          <td>4.15937</td>
+          <td>unchanged</td>
+          <td><span class="tag open">open</span>
+              Pinpointed where the argument is slack (finder vs. bottleneck
+              chord); formalising a refinement is left for follow-up.</td>
+        </tr>
+        <tr>
+          <td>2-robot F2F, &epsilon;-cut probe
+              <span class="src">BLLSW17</span></td>
+          <td>UB&nbsp;5.625</td>
+          <td>unchanged</td>
+          <td><span class="tag null">null</span>
+              Symmetric&nbsp;2-cut + small-off-path refinement converges
+              back to Brandt's UB.</td>
+        </tr>
+        <tr>
+          <td>Priority evacuation, <em>n</em>&nbsp;=&nbsp;1 servant
+              <span class="src">CEGKLPR18 (unaddressed)</span></td>
+          <td>&mdash;</td>
+          <td>1&nbsp;+&nbsp;&pi; &le; T* &le; 1&nbsp;+&nbsp;2&pi;/3&nbsp;+&nbsp;&radic;3</td>
+          <td><span class="tag bracket">bracket</span>
+              ~4.14 &le; T* &le; ~4.83 (gap ~0.685). Too loose for the
+              paper; retained in repo.</td>
+        </tr>
+        <tr>
+          <td>Priority <em>n</em>&nbsp;=&nbsp;2 / SR model
+              <span class="src">CEGKLPR18, GGK22</span></td>
+          <td>&mdash;</td>
+          <td>no result</td>
+          <td><span class="tag null">null</span>
+              Scoped, drafted, cut.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>Flagship: the <em>A<sub>3</sub>(y)</em> algorithm</h2>
 
     <p>Czyzowicz et al. (2014) gave an explicit algorithm
-    <em>A<sub>3</sub></em> for this problem with a worst-case bound of
-    <strong>4.2193</strong>. Their construction is parametrised by a
-    single deployment offset&nbsp;<em>y</em>. Treating&nbsp;<em>y</em>
-    as tunable and balancing <em>three</em> worst-case regimes rather
-    than two yields an improved bound of <strong>4.2185</strong> at
-    <em>y<sub>opt</sub>&nbsp;&approx;&nbsp;1.2159</em>. The report on
-    the right has full details.</p>
+    <em>A<sub>3</sub></em> for 3-robot wireless evacuation with a
+    worst-case bound of <strong>4.2193</strong>. Their construction is
+    parametrised by a single deployment offset&nbsp;<em>y</em>.
+    Treating&nbsp;<em>y</em> as tunable and balancing <em>three</em>
+    worst-case regimes rather than two yields the improved bound
+    <strong>4.21852</strong> at
+    <em>y<sub>opt</sub>&nbsp;&approx;&nbsp;1.21586</em>. The report on
+    the right has the full zone-by-zone proof and the transcendental
+    master equation characterising <em>y<sub>opt</sub></em>.</p>
 
-    <h2>Interactive: the <em>A<sub>3</sub>(y)</em> algorithm</h2>
     <p class="hint">Drag the sliders, or click on the boundary to move
     the exit. The snapshot shows the three robots at the moment of
     discovery (<em>t</em> = <em>t<sub>found</sub></em>); the dashed line
@@ -86,6 +148,27 @@
       <span class="dot star"></span> exit.
       Pale lines show full trajectories; solid dots show robot positions
       at <em>t<sub>found</sub></em>.</p>
+
+    <h2>Next directions</h2>
+    <ul class="next">
+      <li><strong>Lower-bound refinement at <em>k</em>=3.</strong>
+        CGK+14's LB bounds the finder's chord; in our UB algorithm the
+        bottleneck is a different robot. A multi-exit adversary that
+        forces <em>some</em> robot far from the eventual exit would
+        tighten it.</li>
+      <li><strong>Curved / non-radial approaches.</strong> Every
+        trajectory family we explored uses a radial ingress. Tangential
+        or spiral ingress might unlock configurations the
+        piecewise-linear class can't reach.</li>
+      <li><strong>Brandt F2F beyond &epsilon;-cut.</strong> The null
+        result suggests the symmetric 2-cut family is a local minimum.
+        Asymmetric or curved cuts are natural next probes.</li>
+      <li><strong>Priority <em>n</em>=1.</strong> Our ~0.685 bracket
+        wants either a sharper UB or a non-trivial LB.</li>
+      <li><strong>Non-disk shapes.</strong> BLLSW17's worst-case-exit
+        tool applies to any convex room; porting <em>A<sub>3</sub></em>
+        to a square is open-ended but numerics-friendly.</li>
+    </ul>
   </section>
 
   <section class="right">
