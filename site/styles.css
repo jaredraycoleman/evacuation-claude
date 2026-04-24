@@ -237,6 +237,14 @@ table.status .src {
   color: var(--muted);
   margin-top: 0.15rem;
 }
+table.status .subfield {
+  display: block;
+  font-size: 0.7rem;
+  color: var(--muted);
+  font-family: system-ui, sans-serif;
+  white-space: normal;
+  line-height: 1.2;
+}
 
 .tag {
   display: inline-block;

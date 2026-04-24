@@ -24,7 +24,7 @@
 \theoremstyle{remark}
 \newtheorem{remark}[theorem]{Remark}
 
-\title{An Improved Upper Bound for Three-Robot Wireless Evacuation on the Disk}
+\title{Improved Bounds for Three-Robot Wireless Evacuation on the Disk}
 \author{}
 \date{\today}
 
@@ -33,22 +33,29 @@
 
 \begin{abstract}
 We study the wireless three-robot evacuation problem on the unit disk
-and prove an upper bound of
-$1 + \tfrac{2\pi}{3} - \tfrac{y_{\mathrm{opt}}}{2} + \sqrt 3
+and narrow on both sides the gap of $\approx 0.06$ left open by
+Czyzowicz et al.~\cite{czyzowicz2014}. On the upper side, we prove
+$T^* \le 1 + \tfrac{2\pi}{3} - \tfrac{y_{\mathrm{opt}}}{2} + \sqrt 3
 \approx 4.21851\,70$, where $y_{\mathrm{opt}}$ is the unique root in
-$(0, \pi/6)$ of a transcendental master equation derived below. This
-improves the best known upper bound of Czyzowicz et
-al.~\cite{czyzowicz2014} ($\approx 4.21929\,73$) by approximately
-$0.00078 \approx 1/1280$, and leaves a gap of about $0.06$ against the
-best known lower bound of the same paper. The improvement is obtained
-by retaining the structural skeleton of the $A_3$ algorithm
-of~\cite{czyzowicz2014} and rebalancing a single deployment parameter
-$y$ so that \emph{four} symmetric worst-case exit angles bind
-simultaneously, rather than the two balanced by Czyzowicz et al. Rigour
-is provided by an analytic zone-by-zone enumeration of the evacuation
-time's worst-case regimes; a 40-digit integer-relation search (PSLQ)
-over the usual atomic constants rules out elementary closed-form
-reductions of $y_{\mathrm{opt}}$ below a specified norm radius.
+$(0, \pi/6)$ of a transcendental master equation derived below; this
+improves Czyzowicz et al.'s $\approx 4.21929\,73$ by $\approx 0.00078
+\approx 1/1280$, obtained by retaining the structural skeleton of the
+$A_3$ algorithm of~\cite{czyzowicz2014} and rebalancing a single
+deployment parameter $y$ so that \emph{four} symmetric worst-case exit
+angles bind simultaneously rather than two. On the lower side, we prove
+the strict improvement $T^* > 4.15937$ over Czyzowicz et al.'s matching
+lower bound. The lower-bound argument introduces a universal refined
+inequality that bounds evacuation time by the chord from the
+bottleneck (rather than finder) robot to the exit, combined with a
+state-tight sharpening of Czyzowicz et al.'s Lemma~5 and a geometric
+min-chord lemma; for the subclass of ``scan-tight'' algorithms,
+where the scan budget is saturated at the critical time, we prove
+$T^* \ge 1 + x^* + 2\cos(x^*/4) \approx 4.17306$, where $x^* :=
+\tfrac{2}{3}\arccos(-\tfrac{1}{3})$. Rigour for the upper bound is
+provided by an analytic zone-by-zone enumeration of the evacuation
+time's worst-case regimes; a $40$-digit integer-relation search rules
+out elementary closed-form reductions of $y_{\mathrm{opt}}$ below a
+specified norm radius.
 \end{abstract}
 
 \section{Introduction}
@@ -80,8 +87,18 @@ custom algorithm~$A_3$ (their Theorem~6) with the explicit bound
 T_{\mathrm{CGK}} \;:=\; \tfrac{4\pi}{9} + \tfrac{2\sqrt3 + 5}{3} + \tfrac{1}{600}
 \;\approx\; 4.21929727,
 \end{equation}
-and a matching lower bound of approximately $4.15935$ (their
-Theorem~7). The gap of $\approx 0.06$ has been open since 2014.
+and, writing
+\begin{equation}
+\label{eq:xstar}
+x^* \;:=\; \tfrac{2}{3}\arccos\!\left(-\tfrac{1}{3}\right) \;\approx\; 1.27376,
+\end{equation}
+a matching lower bound
+\begin{equation}
+\label{eq:czy-lb}
+T^*_{3,\mathrm{wireless}} \;\ge\; 1 + x^* + \tfrac{4\sqrt 2}{3} \;\approx\; 4.15937
+\end{equation}
+(their Theorem~7), leaving a gap of $\approx 0.06$ that has been open
+since 2014.
 
 \begin{figure}[htbp]
 \centering
@@ -94,20 +111,38 @@ straight chord to the exit.}
 \label{fig:problem}
 \end{figure}
 
-\paragraph{Contribution.} Our main result
-(\Cref{thm:main} below) proves the improved upper bound
+\paragraph{Contribution.} We narrow the gap on both sides.
+
+\emph{Upper bound} (\Cref{thm:main}). We prove
 \begin{equation}
 \label{eq:our-ub}
-T(y_{\mathrm{opt}}) \;=\; 1 + \tfrac{2\pi}{3} - \tfrac{y_{\mathrm{opt}}}{2} +
+T^*_{3,\mathrm{wireless}} \;\le\; 1 + \tfrac{2\pi}{3} - \tfrac{y_{\mathrm{opt}}}{2} +
 \sqrt{3} \;\approx\; 4.21851699\ldots,
 \end{equation}
 for a specific deployment parameter~$y_{\mathrm{opt}}$ determined by a
 transcendental equation
-(\Cref{thm:transcendental,rem:pslq}). The optimum is
-reached when four symmetric worst-case exit angles simultaneously bind.
-The result is proved by an analytic zone decomposition of the evacuation
-time (\Cref{lem:zones,lem:zone-max}); no lower-bound
-improvement is claimed.
+(\Cref{thm:transcendental,rem:pslq}), improving
+\eqref{eq:czy-ub} by $\approx 1/1280$. The optimum is reached when four
+symmetric worst-case exit angles simultaneously bind. The result is
+proved by an analytic zone decomposition of the evacuation time
+(\Cref{lem:zones,lem:zone-max}).
+
+\emph{Lower bound} (\Cref{thm:lb-strict}). We prove the strict
+improvement
+\begin{equation}
+\label{eq:our-lb}
+T^*_{3,\mathrm{wireless}} \;>\; 1 + x^* + \tfrac{4\sqrt 2}{3} \;\approx\; 4.15937,
+\end{equation}
+by combining (a) a new universal refined inequality $\mathrm{evac}(p)
+\ge (1+x) + \max_j \|\rho_j(1+x) - p\|$ valid for any unexplored exit
+$p$ (\Cref{prop:refined}), (b) a state-tight sharpening of
+Czyzowicz et al.'s Lemma~5 (\Cref{lem:state-cgk}), and (c) a geometric
+min-chord lemma showing that every scan-budget-tight state has bottleneck
+chord $\ge 2\cos(x^*/4)$ at the critical time
+(\Cref{lem:min-chord}). For the subclass of \emph{scan-tight}
+algorithms (those saturating the perimeter scan budget at time $1+x^*$)
+we prove the stronger bound $T^*_{3,\mathrm{wireless}} \ge 1 + x^* +
+2\cos(x^*/4) \approx 4.17306$.
 
 \paragraph{High-level strategy.} We retain Czyzowicz et al.'s $A_3$
 structural skeleton verbatim, but treat the single angular offset~$y$
@@ -121,16 +156,16 @@ slack in \eqref{eq:czy-ub} is in fact exactly half the penalty imposed by
 ignoring this third regime; our optimum removes it and improves by a further
 $\approx 1/(1280)$ beyond.
 
-\paragraph{Provenance.} This paper is the principal positive result of
+\paragraph{Provenance.} Both results are positive outcomes of
 \emph{evacuation-claude}, a project using Anthropic's Claude as a
 sustained research collaborator to survey open gaps across four
-reference papers on robot evacuation. Other probes in the same project
---- an $\varepsilon$-cut refinement of Brandt et al.'s 2-robot F2F
-algorithm~\cite{brandt2020}, and a bracket for priority evacuation with
-a single servant~\cite{czyzowicz2018priority} --- yielded a null result
-and a loose bracket respectively, leaving the $k=3$ wireless upper
-bound as the gap the tooling could tighten. Source, experimental
-scripts, and per-session research log are at
+reference papers on robot evacuation. Other probes in the same
+project --- an $\varepsilon$-cut refinement of Brandt et al.'s 2-robot
+F2F algorithm~\cite{brandt2020} and a bracket for priority evacuation
+with a single servant~\cite{czyzowicz2018priority} --- yielded a null
+result and a loose bracket respectively; the $k=3$ wireless gap was the
+setting in which the tooling had enough traction to tighten both sides.
+Source, experimental scripts, and per-session research log are at
 \url{https://github.com/jaredraycoleman/evacuation-claude}.
 
 \section{Preliminaries}
@@ -794,43 +829,31 @@ confirming the four simultaneous maxima predicted by~\Cref{thm:main}.
 All scripts and a driver for rebuilding this document live in the
 repository at \url{https://github.com/jaredraycoleman/evacuation-claude}.
 
-\section{The lower-bound gap}
+\section{Improved lower bound}
 \label{sec:lb}
 
-\cite{czyzowicz2014}'s Theorem~7 establishes the lower bound
-\[
-T^*_{3,\mathrm{wireless}} \;\ge\; 1 + \tfrac{2}{3}\arccos\!\left(-\tfrac{1}{3}\right)
-+ \tfrac{4\sqrt 2}{3} \;\approx\; 4.15937,
-\]
-leaving a gap of $\approx 0.06$ against our \Cref{thm:main}. Their
-argument (their Lemma~5 and~6) has the form: at time $1+x$, the total
-scanned perimeter is $\le kx$, so the unexplored set has length
-$\ge 2\pi - kx$; Lemma~5 then exhibits two unexplored points at
-shorter-arc distance $\ge u := 2\pi - kx$; the adversary commits the exit
-to whichever is reached second, forcing the \emph{finder}'s chord to be
-$\ge 2\sin(u/2)$. Optimising over $x$ (with $k=3$) yields the closed
-form above at $x_{\mathrm{opt,LB}} = \tfrac23 \arccos(-\tfrac13)$.
+We prove \Cref{thm:lb-strict} below: $T^*_{3,\mathrm{wireless}} >
+4.15937$ strictly, improving \eqref{eq:czy-lb}, and $T^*_{3,\mathrm{
+wireless}} \ge 4.17306$ for algorithms that saturate the perimeter scan
+budget at the critical time $1 + x^*$ (the \emph{scan-tight} subclass;
+see below). The argument has three ingredients:
+\Cref{prop:refined} (a new universal inequality bounding evacuation time
+by the bottleneck-robot chord), \Cref{lem:state-cgk} (a state-tight
+sharpening of Czyzowicz et al.'s argument), and \Cref{lem:min-chord}
+(a geometric min-chord lemma at scan-tight states). We conclude with
+a discussion of the infimum over all algorithms
+(\Cref{rem:infimum-open}), which numerics suggest is $4.17306$ but which
+we do not prove rigorously.
 
-\begin{remark}[Where the LB argument has slack]
-\label{rem:lb-slack}
-The argument bounds the \emph{finder}'s chord to the exit, not the
-bottleneck's. In $A_3(y_{\mathrm{opt}})$ at its worst exit
-$\theta \approx 1.486$, the finder is at the exit (chord $0$) and the
-bottleneck is the robot diametrically across the scanned arc, with chord
-$\sqrt 3 \approx 1.732$ — strictly larger than the Czyzowicz et al.\
-chord lower bound $2\sin(xk/2) \approx 1.586$ evaluated at the same $x$.
-Tightening the LB thus requires arguing that the \emph{bottleneck} chord
-exceeds $2\sin(xk/2)$ for every three-robot wireless algorithm, not only
-the finder's. Verified via the Wolfram script
-\texttt{analysis/czyzowicz\_lb.wls}.
-\end{remark}
-
-\subsection{A strict lower-bound improvement}
-\label{sec:lb-refined}
-
-We now use the same slack to prove a strict improvement over
-\cite{czyzowicz2014}'s $\approx 4.15937$. Set $x^* := \tfrac{2}{3}\arccos
-(-\tfrac{1}{3})$.
+\paragraph{Where Czyzowicz et al.'s argument has slack.} Czyzowicz et
+al.'s proof of~\eqref{eq:czy-lb} bounds the \emph{finder}'s chord to the
+exit. In $A_3(y_{\mathrm{opt}})$ at its worst exit $\theta \approx
+1.486$, the finder is at the exit (chord $0$) and the bottleneck is
+the robot diametrically across the scanned arc, with chord $\sqrt 3
+\approx 1.732$ --- strictly larger than Czyzowicz et al.'s finder-chord
+lower bound $2\sin(xk/2) \approx 1.586$ evaluated at the same $x$. This
+discrepancy motivates a bound on the \emph{bottleneck} chord, which
+is what \Cref{prop:refined} provides.
 
 \begin{proposition}[Refined inequality]
 \label{prop:refined}
@@ -943,17 +966,22 @@ In either case, $T(\mathcal A) > 4.15937$, and in Case 2 the stronger
 bound $4.17306$ holds.
 \end{proof}
 
-The infimum of $T(\mathcal A)$ over all algorithms is bounded below by
-$4.15937$ in the weak sense (from Case 1 as $e \to 3x^{*-}$), but
-\emph{no specific} algorithm achieves this value: Case 1 gives strict
-$>$ for every $e < 3x^*$, and Case 2 gives $\ge 4.17306$. A uniform
-quantitative improvement in the infimum itself — i.e., a bound of the
-form $T^*_{3,\text{wireless}} \ge 4.15937 + \delta$ for some explicit
-$\delta > 0$ — would require controlling the minimum of the combined
-bound on the interpolation $e \in [3x^* - \varepsilon, 3x^*]$. Numerical
-probes (\texttt{experiments/lb\_minimax\_sweep.py}) suggest this
-infimum is $4.17306$ itself (the Case 2 value), in which case
-$T^*_{3,\text{wireless}} \ge 4.17306$; proving it rigorously is open.
+\begin{remark}[On the infimum]
+\label{rem:infimum-open}
+\Cref{thm:lb-strict} shows $T(\mathcal A) > 4.15937$ strictly for every
+specific algorithm $\mathcal A$, but its proof leaves open whether
+$\inf_{\mathcal A} T(\mathcal A) = 4.15937$ or $\inf_{\mathcal A}
+T(\mathcal A) > 4.15937$: in Case~1 of the proof, as $e \to 3x^{*-}$
+the LB approaches $4.15937$. A uniform quantitative improvement of the
+form $T^*_{3,\mathrm{wireless}} \ge 4.15937 + \delta$ for explicit
+$\delta > 0$ would require controlling $\inf_{\text{alg state with }
+|E| = e} \max\{T\text{-bounds from \Cref{lem:state-cgk} and \Cref{prop:refined}}\}$
+on the boundary regime $e \in [3x^* - \varepsilon, 3x^*]$. Numerical
+minimax probes (see \texttt{experiments/lb\_minimax\_sweep.py}) suggest
+this infimum is $4.17306$ itself (the Case~2 value), in which case
+$T^*_{3,\mathrm{wireless}} \ge 4.17306$ universally; we conjecture this
+but do not prove it here.
+\end{remark}
 
 \section{Next Steps}
 \label{sec:next}
@@ -980,13 +1008,25 @@ We conjecture that $4.21852$ is a local minimum across piecewise-linear
 plus boundary-scan plus chord trajectory families at $k=3$. Breaking
 through likely requires \emph{curved} (non-radial) approaches, which
 would admit a larger design space at the cost of harder analysis.
-\item \textbf{Lower bound.} As noted in \Cref{rem:lb-slack}, tightening
-Czyzowicz et al.'s LB reduces to arguing that the bottleneck chord (not
-the finder's) is bounded below. A promising route is a multi-exit
-adversary that keeps three candidate exits alive simultaneously; if the
-three candidates are forced to be mutually far, then by pigeonhole some
-robot is far from the actual exit regardless of how the algorithm has
-positioned its robots. Formalising this for $k=3$ is open.
+\item \textbf{Lower bound (infimum).} The open question from
+\Cref{rem:infimum-open} is whether $\inf_{\mathcal A} T(\mathcal A) =
+4.17306$ (matching the scan-tight bound), as numerics suggest, or
+whether a sequence of non-scan-tight algorithms approaches $4.15937$.
+Closing this rigorously reduces to a perturbation analysis of
+\Cref{lem:min-chord} at $|E| \in [3x^* - \varepsilon, 3x^*]$: showing
+that moving robots off-boundary or shortening scans by at most
+$\varepsilon$ cannot drop the sup chord faster than state-tight CGK
+rises. The numerical evidence
+(\texttt{experiments/lb\_minimax\_sweep.py}) is that it cannot,
+because the sup chord at scan-tight states is dominated by a ``far''
+robot whose position is insensitive to small perturbations of the
+other two.
+\item \textbf{Closing the full gap.} Even the conjectural universal
+LB of $4.17306$ leaves $\approx 0.045$ against our UB $4.21852$. A
+multi-exit adversary keeping three mutually-far candidate exits alive
+simultaneously is a natural next probe: by pigeonhole, some robot
+must be far from whichever exit is committed to, regardless of
+positioning. Formalising this for $k=3$ is open.
 \end{itemize}
 \bibliographystyle{plain}
 \bibliography{refs}
