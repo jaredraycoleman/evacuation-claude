@@ -842,8 +842,8 @@ by the bottleneck-robot chord), \Cref{lem:state-cgk} (a state-tight
 sharpening of Czyzowicz et al.'s argument), and \Cref{lem:min-chord}
 (a geometric min-chord lemma at scan-tight states). We conclude with
 a discussion of the infimum over all algorithms
-(\Cref{rem:infimum-open}), which numerics suggest is $4.17306$ but which
-we do not prove rigorously.
+(\Cref{rem:infimum-open}), which numerics locate at approximately
+$4.16703$.
 
 \paragraph{Where Czyzowicz et al.'s argument has slack.} Czyzowicz et
 al.'s proof of~\eqref{eq:czy-lb} bounds the \emph{finder}'s chord to the
@@ -969,18 +969,42 @@ bound $4.17306$ holds.
 \begin{remark}[On the infimum]
 \label{rem:infimum-open}
 \Cref{thm:lb-strict} shows $T(\mathcal A) > 4.15937$ strictly for every
-specific algorithm $\mathcal A$, but its proof leaves open whether
-$\inf_{\mathcal A} T(\mathcal A) = 4.15937$ or $\inf_{\mathcal A}
-T(\mathcal A) > 4.15937$: in Case~1 of the proof, as $e \to 3x^{*-}$
-the LB approaches $4.15937$. A uniform quantitative improvement of the
-form $T^*_{3,\mathrm{wireless}} \ge 4.15937 + \delta$ for explicit
-$\delta > 0$ would require controlling $\inf_{\text{alg state with }
-|E| = e} \max\{T\text{-bounds from \Cref{lem:state-cgk} and \Cref{prop:refined}}\}$
-on the boundary regime $e \in [3x^* - \varepsilon, 3x^*]$. Numerical
-minimax probes (see \texttt{experiments/lb\_minimax\_sweep.py}) suggest
-this infimum is $4.17306$ itself (the Case~2 value), in which case
-$T^*_{3,\mathrm{wireless}} \ge 4.17306$ universally; we conjecture this
-but do not prove it here.
+specific algorithm $\mathcal A$, but its proof leaves open the
+quantitative value of $\inf_{\mathcal A} T(\mathcal A)$: in Case~1 of
+the proof, as $e \to 3x^{*-}$ the Case~1 bound approaches $4.15937$, so
+the proof as written does not exclude $\inf_{\mathcal A} T(\mathcal A) =
+4.15937$.
+
+A uniform quantitative improvement comes from analysing how much the
+refined bound can drop below its scan-tight value $1 + x^* + 2\cos(x^*/4)
+\approx 4.17306$ as the scan budget slackens. Consider the ``balanced
+slack'' subfamily: each of the three robots uses the same time
+$\tau \in [0, x^*]$ for radial inward motion after its scan arc, so
+that $|E| = 3(x^* - \tau) = 3x^* - 3\tau$ and each $R_j = (1-\tau)e
+(\alpha_j + s_j L_j)$ with $L_j = x^* - \tau$. Numerically (see
+\texttt{experiments/lb\_uniform.py} and
+\texttt{analysis/lb\_uniform\_bound.wls}), the combined bound
+$\max(\text{\Cref{lem:state-cgk}},\text{\Cref{prop:refined}})$ on this
+subfamily has its minimum at
+$\tau^* \approx 0.007782$, where the state-tight CGK rate (rising at
+slope $\approx 1/3$ as $\tau$ grows from $0$) crosses the refined rate
+(falling at slope $\approx 0.26$), giving the common value
+\begin{equation}
+\label{eq:inf-bal}
+T^*_{3,\mathrm{wireless}} \;\ge\; \min_{\tau \ge 0} \max\!\bigl(
+\mathrm{CGK}(3x^* - 3\tau),\, 1 + x^* + h(\tau)\bigr)
+\;\approx\; 4.16703\ldots,
+\end{equation}
+where $h(\tau) := \sqrt{(1-\tau)^2 + 2(1-\tau)\cos((x^*-\tau)/2) + 1}$
+is the sup chord in the balanced 2-coincident configuration.
+
+For the bound \eqref{eq:inf-bal} to become a rigorous universal
+lower bound, one needs to extend \Cref{lem:min-chord} to all algorithm
+states with $|E| \le 3x^*$ (possibly with off-boundary robots), showing
+that no configuration achieves a smaller sup chord than the balanced
+2-coincident benchmark. Broad numerical minimax probes (see
+\texttt{experiments/lb\_uniform\_broad.py}) are consistent with this,
+modulo grid artefacts; a rigorous proof is open.
 \end{remark}
 
 \section{Next Steps}
@@ -1008,19 +1032,16 @@ We conjecture that $4.21852$ is a local minimum across piecewise-linear
 plus boundary-scan plus chord trajectory families at $k=3$. Breaking
 through likely requires \emph{curved} (non-radial) approaches, which
 would admit a larger design space at the cost of harder analysis.
-\item \textbf{Lower bound (infimum).} The open question from
-\Cref{rem:infimum-open} is whether $\inf_{\mathcal A} T(\mathcal A) =
-4.17306$ (matching the scan-tight bound), as numerics suggest, or
-whether a sequence of non-scan-tight algorithms approaches $4.15937$.
-Closing this rigorously reduces to a perturbation analysis of
-\Cref{lem:min-chord} at $|E| \in [3x^* - \varepsilon, 3x^*]$: showing
-that moving robots off-boundary or shortening scans by at most
-$\varepsilon$ cannot drop the sup chord faster than state-tight CGK
-rises. The numerical evidence
-(\texttt{experiments/lb\_minimax\_sweep.py}) is that it cannot,
-because the sup chord at scan-tight states is dominated by a ``far''
-robot whose position is insensitive to small perturbations of the
-other two.
+\item \textbf{Lower bound (infimum).} By
+\Cref{rem:infimum-open} and \eqref{eq:inf-bal}, the conjectural
+universal lower bound is $\approx 4.16703$, attained in the balanced
+2-coincident subfamily at $\tau^* \approx 0.007782$. Closing this
+rigorously reduces to extending \Cref{lem:min-chord} to all
+non-scan-tight states: for each $|E| \in (0, 3x^*]$, show that no
+algorithm state achieves a refined sup chord smaller than the balanced
+2-coincident benchmark $h(\tau)$ with $\tau = (3x^* - |E|)/3$. Broad
+numerical minimax (see \texttt{experiments/lb\_uniform\_broad.py})
+supports this once grid artefacts are controlled.
 \item \textbf{Closing the full gap.} Even the conjectural universal
 LB of $4.17306$ leaves $\approx 0.045$ against our UB $4.21852$. A
 multi-exit adversary keeping three mutually-far candidate exits alive

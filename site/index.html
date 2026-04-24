@@ -66,11 +66,12 @@
               combined with a min-chord geometric lemma
               (<em>sup<sub>p</sub> max<sub>j</sub> chord &ge; 2&thinsp;cos(x/4)</em>)
               forces strict improvement over CGK. For the
-              <em>scan-tight</em> subclass (algorithms that saturate
-              the perimeter scan budget at time 1+x*),
-              <strong>T &ge; 4.17306</strong> is proved; the universal
-              infimum is numerically <strong>4.17306</strong> but
-              the proof for all algorithms is open. Full proof in report.</td>
+              <em>scan-tight</em> subclass,
+              <strong>T &ge; 4.17306</strong> is proved. The universal
+              infimum is numerically <strong>&asymp; 4.16703</strong>
+              (attained by balanced 2-coincident with slack
+              &tau; &asymp; 0.0078); a rigorous proof at this value is open.
+              Full proof in report.</td>
         </tr>
         <tr>
           <td>2-robot F2F, &epsilon;-cut probe
@@ -159,12 +160,13 @@
 
     <h2>Next directions</h2>
     <ul class="next">
-      <li><strong>Push the LB from &gt;4.15937 to &ge;4.17306 uniformly.</strong>
-        We proved <em>T(&#120491;) &gt; 4.15937</em> for every algorithm,
-        but the infimum in the non-scan-tight case approaches 4.15937
-        in the limit. Numerics suggest the true infimum is 4.17306;
-        proving it requires controlling the minimum refined chord as
-        a function of &vert;E&vert; near 3x*.</li>
+      <li><strong>Push the LB from &gt;4.15937 to &ge;4.16703 uniformly.</strong>
+        We proved <em>T(&#120491;) &gt; 4.15937</em> for every algorithm.
+        Careful numerics locate the universal infimum at &asymp; 4.16703,
+        attained by a balanced 2-coincident configuration with
+        &tau; &asymp; 0.0078 inward slack. Rigorously proving this
+        requires extending the min-chord lemma from scan-tight to all
+        algorithm states.</li>
       <li><strong>Curved / non-radial approaches.</strong> Every
         trajectory family we explored uses a radial ingress. Tangential
         or spiral ingress might unlock configurations the
