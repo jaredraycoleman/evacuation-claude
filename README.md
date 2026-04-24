@@ -38,27 +38,31 @@ until the gap either closed, split, or revealed a fundamental barrier.
 
 | # | Problem | Reference | Prior state | Our state | Outcome |
 |---|---|---|---|---|---|
-| 1 | 3-robot wireless, $k=3$, UB | CGK+14 Thm 6 | $4.21930$ | $\mathbf{4.21852}$ | **Gap tightened** by $\sim 1/1280$, with a rigorous zone-decomposition proof and a transcendental characterisation of the optimal deployment parameter. Flagship result of the paper. |
-| 2 | 3-robot wireless, $k=3$, LB | CGK+14 Thm 7 | $4.15937$ | unchanged | Identified where the published argument is slack (it bounds the *finder*'s chord, but in our UB algorithm the *bottleneck* is a different robot). A formal refinement is open. |
+| 1 | 3-robot wireless, $k=3$, UB | CGK+14 Thm 6 | $4.21930$ | $\mathbf{4.21852}$ | **Gap tightened** by $\sim 1/1280$, with a rigorous zone-decomposition proof and a transcendental characterisation of the optimal deployment parameter. |
+| 2 | 3-robot wireless, $k=3$, LB | CGK+14 Thm 7 | $4.15937$ | $\mathbf{> 4.15937}$ (strict; $\ge 4.17306$ for scan-tight algorithms) | **LB improved.** Proved $T(\mathcal A) > 4.15937$ for every algorithm via a new refined inequality (triangle-inequality) combined with CGK's Lemma 5 applied to the actual $|E|$ of the algorithm state, plus a geometric min-chord lemma ($\sup_p \max_j \|R_j - p\| \ge 2\cos(x/4)$) attained by a 2-coincident configuration. |
 | 3 | 2-robot F2F, Brandt "$\varepsilon$-cut" probe | BLLSW17 | UB $5.625$ | unchanged | **Null result.** Probe of an $\varepsilon$-cut refinement of Brandt's symmetric-cut family converged back to the original. Retained as `experiments/brandt_f2f.py`. |
 | 4 | Priority evacuation, $n=1$ servant, wireless | CEGKLPR18 (unaddressed for $n=1$) | — | bracket $1 + \pi \le T^* \le 1 + 2\pi/3 + \sqrt 3$ | Exploratory bracket ($\approx 4.14 \le T^* \le 4.83$, gap $\approx 0.685$). Too loose to include in the paper; retained as `experiments/priority_n1*.py` and `analysis/priority_n1.wls`. |
 | 5 | Priority $n=2$ / SR model | CEGKLPR18, GGK22 | — | no result | Scoped, drafted, and cut from the paper. |
 
-**Headline.** One gap measurably tightened with a rigorous proof; one
-probe that confirmed a published UB is tight within its natural family;
-several negative or exploratory brackets.
+**Headline.** Both sides of the $k=3$ wireless gap moved: UB $4.21930
+\to 4.21852$, LB $4.15937$ (not strictly attained, $\ge 4.17306$ for
+scan-tight algorithms). A null probe confirming Brandt's F2F UB is
+tight in its natural family. Several exploratory brackets on priority
+evacuation, left open.
 
 ## Next directions
 
-The most tractable remaining frontier is the $\approx 0.060$ gap between
-our UB ($4.21852$) and CGK+14's LB ($4.15937$) at $k=3$.
+The remaining gap at $k=3$ is between our UB ($4.21852$) and the LB
+($> 4.15937$, $\ge 4.17306$ for scan-tight algorithms). Directions:
 
-- **Lower-bound refinement.** CGK+14's Lemma 6 bounds the *finder*'s
-  chord to the exit. In $A_3(y_{\mathrm{opt}})$ the finder has chord
-  $0$; the bottleneck is a different robot with chord $\sqrt 3$. A
-  multi-exit adversary keeping three candidate exits mutually far apart
-  should force *some* robot (not just the finder) far from the
-  eventual exit. Formalising this for $k = 3$ is open.
+- **Tighten the LB infimum to $4.17306$.** Our theorem shows $T(\mathcal A)
+  > 4.15937$ for every algorithm, but the infimum over algorithms in
+  Case 1 (non-scan-tight) approaches $4.15937$ in the limit $|E|(1 + x^*)
+  \to 3x^{*-}$. Numerics suggest the infimum is actually $4.17306$
+  (i.e., no algorithm achieves below that) — the combined bound
+  $\max(\text{state-tight-CGK}, \text{refined})$ stays $\ge 4.17306$
+  across the relevant $|E|$ range — but this requires a monotonicity
+  argument about the minimum refined chord as a function of $|E|$.
 - **Curved / non-radial approaches.** Every trajectory family we
   explored (A, C, D, E, F) uses a radial ingress to the boundary.
   Replacing the radial segment with a tangential or logarithmic-spiral

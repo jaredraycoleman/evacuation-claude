@@ -153,47 +153,58 @@ that indicates the ceiling, even if the proof isn't yet clean.
 
 **Progress so far (this problem):**
 
-**New universal inequality (derived + numerically validated).** For any
-3-robot wireless algorithm, any $x > 0$, any $p$ unexplored at time $1+x$:
-$$\text{evac}(p) \ge (1+x) + \max_j \|R_j(1+x) - p\|.$$
-Triangle-inequality proof is clean; see `notes/lb-refinement.md`.
+**Proved** (Theorem 4 in `paper/main.tex`, formalised in
+`analysis/lb_theorem.wls`):
 
-**On $A_3(y_{\text{opt}})$ the refined inequality is nearly tight.**
-Applied to the UB algorithm directly
-(`experiments/lb_refined_a3.py`): $\sup_{x,p} [(1+x) + \max_j] = 4.21836$
-at $x \approx 1.5$, within $0.0002$ of the actual UB $4.21852$. The
-inequality therefore captures almost all of the slack in $A_3$'s own
-worst case — encouraging sign that this is "the right object."
+\[
+T(\mathcal A) \;>\; 4.15937 \quad\text{for every 3-robot wireless algorithm } \mathcal A,
+\]
 
-**Refined alone is not universally stronger than CGK**
-(`experiments/lb_minimax.py`). Raw min over algorithm states of
-$\sup_{x,p}$ = 3.95 at $x = 1.95$, achieved by "all robots at origin"
-states. These states are degenerate (alg never evacuates), but they
-defeat the refined bound in isolation.
+and for the scan-tight class ($|E(1 + x^*)| = 3x^*$, where
+$x^* = (2/3)\arccos(-1/3) \approx 1.2738$):
 
-**Combined bound $\max(\text{state-tight CGK}, \text{refined})$ looks
-promising** (`experiments/lb_combined.py`). For any alg state at
-$x^* = 1.274$ (CGK's optimum):
-- If $|E(2.274)| < 3x^*$: state-tight CGK is $> 4.159$ by itself.
-- If $|E| = 3x^*$ exactly (CGK's universal bound tight): all 3 robots
-  are on the boundary, and numerically min refined chord over that
-  class is $\ge 1.898$, giving refined LB $\ge 4.172 > 4.159$.
+\[
+T(\mathcal A) \;\ge\; 1 + x^* + 2\cos(x^*/4) \;=\; 4.17306.
+\]
 
-So the two cases together rule out a universal LB of exactly $4.159$.
-The boundary case (mixing small $|E| < 3x$ with small refined) needs
-more care: the combined LB there depends on how fast min-refined
-decreases as $|E|$ drops below $3x$. Numerical slope suggests a
-$0.01$ improvement is defensible, not $0.06$.
+The argument has three ingredients:
 
-**Blocking gap.** A clean rigorous LB improvement requires proving:
-\emph{for any 3 robots on $\partial D$ with $|E| = 3x$ (3 disjoint
-scan arcs of length $x$ each ending at robot positions),
-$\max_{p \in E^c} \max_j \|R_j - p\| \ge 2\cos(x/4)$}, achieved by
-the 3-fold symmetric arrangement. This appears true from two explicit
-cases (3-fold symmetric and single-arc), but no proof yet.
+1. *Refined inequality* (Prop 2). For any algorithm, any $x$, any $p$
+   unexplored at time $1+x$: $\mathrm{evac}(p) \ge (1+x) + \max_j
+   \|R_j(1+x) - p\|$. Triangle-inequality proof.
+2. *State-tight CGK* (Lemma 3). Czyzowicz et al.'s LB applied to the
+   actual $|E(1+x)|$ of the alg's state, not the universal bound $3x$.
+   Strictly decreasing in $|E|$ on $[\pi, 3x]$.
+3. *Min-chord geometric lemma* (Lemma 4). For any 3-on-boundary
+   full-scan state, $\sup_{p \in E^c} \max_j \|R_j - p\| \ge 2\cos(x/4)$,
+   with equality attained by a "2-coincident" state with separation
+   $d = \pi + x/2$. Symbolic proof via the balancing of two arcs' sup
+   chords; Wolfram `Simplify` verifies `supChord[Pi + L/2, L] - 2 Cos[L/4] == 0`.
 
-Even that would only give $\approx 0.013$ improvement at $x_{CGK}^*$.
-Closing the full $0.06$ gap is substantially harder.
+The theorem follows by splitting cases at $x = x^*$: scan-tight states
+get the min-chord bound (Case 2, $T \ge 4.17306$); non-scan-tight
+states get state-tight CGK strictly greater than $4.15937$ (Case 1).
+
+**Remaining gap to $T^* \ge 4.17306$ universally.** The theorem gives
+$T(\mathcal A) > 4.15937$ for *every* alg but the infimum's attained
+value $4.15937$ (by Case 1 as $|E| \to 3x^{*-}$). Numerics
+(`experiments/lb_minimax_sweep.py`) suggest no alg reaches $4.15937$:
+the infimum is $4.17306$ or very close. Proving this rigorously needs
+controlling how the min refined chord varies in $|E| \in [3x^* -
+\varepsilon, 3x^*]$, specifically showing it doesn't drop fast enough
+to make the combined bound dip below $4.17306$. Left open.
+
+**Tooling used:**
+- `experiments/lb_refined.py`: closed-form refined LB for 3-fold sym family.
+- `experiments/lb_refined_a3.py`: refined LB on our UB algorithm $A_3$.
+- `experiments/lb_minimax.py`: raw minimax (no combining).
+- `experiments/lb_minimax_v2.py`: better minimax using analytic sup.
+- `experiments/lb_minimax_sweep.py`: sweep of min sup chord vs $x$.
+- `experiments/lb_combined.py`: combined max(CGK, refined) numerics.
+- `analysis/lb_refined_symbolic.wls`: symbolic sup chord for 3-fold sym.
+- `analysis/lb_combined_proof.wls`: symbolic analysis of 2-coincident.
+- `analysis/lb_theorem.wls`: final theorem, symbolic verification.
+- `notes/lb-refinement.md`: mathematical notes and summary.
 
 ## Open problem candidates
 

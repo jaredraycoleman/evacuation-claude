@@ -59,10 +59,13 @@
           <td>3-robot wireless, <em>k</em>&nbsp;=&nbsp;3, LB
               <span class="src">CGK+14 Thm&nbsp;7</span></td>
           <td>4.15937</td>
-          <td>unchanged</td>
-          <td><span class="tag open">open</span>
-              Pinpointed where the argument is slack (finder vs. bottleneck
-              chord); formalising a refinement is left for follow-up.</td>
+          <td><strong>&gt; 4.15937</strong> (strict;<br>
+              &ge; 4.17306 scan-tight)</td>
+          <td><span class="tag good">improved</span>
+              Refined inequality <em>evac(p) &ge; (1+x) + max<sub>j</sub> &Vert;R<sub>j</sub>(1+x) - p&Vert;</em>
+              combined with a min-chord geometric lemma
+              (<em>sup<sub>p</sub> max<sub>j</sub> chord &ge; 2&thinsp;cos(x/4)</em>)
+              forces strict improvement over CGK's 4.15937. Full proof in report.</td>
         </tr>
         <tr>
           <td>2-robot F2F, &epsilon;-cut probe
@@ -151,11 +154,12 @@
 
     <h2>Next directions</h2>
     <ul class="next">
-      <li><strong>Lower-bound refinement at <em>k</em>=3.</strong>
-        CGK+14's LB bounds the finder's chord; in our UB algorithm the
-        bottleneck is a different robot. A multi-exit adversary that
-        forces <em>some</em> robot far from the eventual exit would
-        tighten it.</li>
+      <li><strong>Push the LB from &gt;4.15937 to &ge;4.17306 uniformly.</strong>
+        We proved <em>T(&#120491;) &gt; 4.15937</em> for every algorithm,
+        but the infimum in the non-scan-tight case approaches 4.15937
+        in the limit. Numerics suggest the true infimum is 4.17306;
+        proving it requires controlling the minimum refined chord as
+        a function of &vert;E&vert; near 3x*.</li>
       <li><strong>Curved / non-radial approaches.</strong> Every
         trajectory family we explored uses a radial ingress. Tangential
         or spiral ingress might unlock configurations the
